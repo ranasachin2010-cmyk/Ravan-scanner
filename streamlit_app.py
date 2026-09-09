@@ -9,7 +9,7 @@ st.markdown("<p style='text-align:center;color:gray;'>EMA 21 | RSI 55 | EMA50 - 
 
 def get_data(symbol):
     try:
-        df = yf.download(symbol, period="10d", interval="15m", progress=False)
+        df = yf.download(symbol, period="5d", interval="15m", progress=False)
         if isinstance(df.columns, pd.MultiIndex):
             df.columns = df.columns.get_level_values(0)
         if len(df) < 50:
@@ -52,3 +52,41 @@ if scan:
                     "SIGNAL": "🔥 BUY"
                 })
         bar.progress((i+1)/len(STOCKS))
+    bar.empty()
+    if results:
+        st.success(f"🔥 {len(results)} BUY Signals Found!")
+        st.dataframe(pd.DataFrame(results), use_container_width=True, hide_index=True)
+        for r in results:
+            st.markdown(f"<div style='border:2px solid #00ff00;padding:12px;border-radius:10px;margin:8px 0;background:#111;'><b style='color:white;'>{r['SYMBOL']} - {r['SIGNAL']}</b> <span style='float:right;color:white;'>Rs {r['LTP']}</span><br>ENTRY Rs {r['ENTRY']} | SL <span style='color:#ff4444;'>Rs {r['SL']}</span> | T1 Rs {r['T1']} | T2 Rs {r['T2']}</div>", unsafe_allow_html=True)
+    else:
+        st.warning("⚠️ Abhi koi fresh BUY signal nahi - 9:45 AM ke baad scan karo")
+
+# --- NEW 100% NSE CHART - NO APPLE, NO TRADINGVIEW ---
+st.markdown("---")
+st.subheader("📈 NSE Live Chart - 15 Min")
+
+symbol = st.selectbox("Stock Select Karo:", ["RELIANCE","TCS","INFY","HDFCBANK","ICICIBANK","SBIN","SUNDRMFAST","TATAMOTORS","BHARTIARTL","WIPRO"], key="chart_select")
+
+st.caption(f"Showing: NSE:{symbol} | Live from NSE (yfinance) | No Apple Bug")
+
+df_chart = get_data(f"{symbol}.NS")
+
+if df_chart is not None:
+    col1, col2, col3, col4 = st.columns(4)
+    last = df_chart.iloc[-1]
+    col1.metric("LTP", f"Rs {float(last['Close']):.2f}")
+    col2.metric("EMA21", f"{float(last['EMA21']):.2f}")
+    col3.metric("EMA50", f"{float(last['EMA50']):.2f}")
+    col4.metric("RSI", f"{float(last['RSI']):.1f}")
+
+    # Chart with EMA
+    chart_df = df_chart[['Close','EMA21','EMA50']].tail(100)
+    st.line_chart(chart_df, height=400)
+    
+    # Candle data table
+    with st.expander("📊 Last 5 Candles Data"):
+        st.dataframe(df_chart[['Close','EMA21','EMA50','RSI','Signal']].tail(5).sort_index(ascending=False), use_container_width=True)
+else:
+    st.error("Data load nahi hua - thodi der baad try karo")
+
+st.markdown("<p style='text-align:center;color:gray;margin-top:30px;'>Made with ❤️ RAVAN 2.0 | 100% NSE Data | Educational Only</p>", unsafe_allow_html=True)
