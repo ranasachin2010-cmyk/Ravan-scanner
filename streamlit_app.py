@@ -3,9 +3,9 @@ import yfinance as yf
 import pandas as pd
 import plotly.graph_objects as go
 
-st.set_page_config(page_title="RAVAN 2.0", page_icon="👺", layout="wide")
-st.markdown("<h1 style='text-align:center;color:#ff3300;'>👺 RAVAN 2.0 - LIVE SCANNER</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center;color:gray;'>EMA 21 | RSI 55 | EMA50 - 9:45 AM Setup</p>", unsafe_allow_html=True)
+st.set_page_config(page_title="HANUMAN SCANNER", page_icon="🚩", layout="wide")
+st.markdown("<h1 style='text-align:center;color:#ff6600;'>🚩 HANUMAN SCANNER - LIVE</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;color:gray;'>EMA 21 | RSI 55 | EMA50 - 9:45 AM Setup | Jai Shri Ram</p>", unsafe_allow_html=True)
 
 def get_data(symbol):
     try:
@@ -27,7 +27,7 @@ def get_data(symbol):
     except:
         return None
 
-st.sidebar.title("Ravan Scanner")
+st.sidebar.title("🚩 Hanuman Scanner")
 scan = st.sidebar.button("🔍 SCAN NOW", type="primary", use_container_width=True)
 
 STOCKS = ["RELIANCE.NS","TCS.NS","INFY.NS","HDFCBANK.NS","ICICIBANK.NS","SBIN.NS","SUNDRMFAST.NS","TATAMOTORS.NS","WIPRO.NS","BHARTIARTL.NS"]
@@ -49,22 +49,21 @@ if scan:
                     "T1": round(price*1.02,2),
                     "T2": round(price*1.04,2),
                     "RSI": round(float(last['RSI']),1),
-                    "SIGNAL": "🔥 BUY"
+                    "SIGNAL": "🚩 BUY"
                 })
         bar.progress((i+1)/len(STOCKS))
     bar.empty()
     if results:
-        st.success(f"🔥 {len(results)} BUY Signals Found!")
+        st.success(f"🚩 {len(results)} BUY Signals Found! Jai Shri Ram!")
         st.dataframe(pd.DataFrame(results), use_container_width=True, hide_index=True)
     else:
         st.warning("⚠️ Abhi koi fresh BUY signal nahi - 9:45 AM ke baad scan karo")
 
-# --- PERFECT CHART - FIXED SCALE ---
 st.markdown("---")
 st.subheader("📈 NSE Live Chart - 15 Min")
 
 symbol = st.selectbox("Stock Select Karo:", ["RELIANCE","TCS","INFY","HDFCBANK","ICICIBANK","SBIN","SUNDRMFAST","TATAMOTORS","BHARTIARTL","WIPRO"], key="chart_select")
-st.caption(f"Showing: NSE:{symbol} | 100% NSE Data | No Apple Bug")
+st.caption(f"Showing: NSE:{symbol} | 100% NSE Data")
 
 df_chart = get_data(f"{symbol}.NS")
 
@@ -93,8 +92,5 @@ if df_chart is not None:
     
     with st.expander("📊 Last 5 Candles"):
         st.dataframe(df_chart[['Close','EMA21','EMA50','RSI','Signal']].tail(5).sort_index(ascending=False), use_container_width=True)
-else:
-    st.error("Data load nahi hua")
 
-# Requirements ke liye
-st.markdown("<p style='text-align:center;color:gray;margin-top:30px;'>RAVAN 2.0 | 100% NSE Data</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;color:gray;margin-top:30px;'>🚩 HANUMAN SCANNER | Jai Shri Ram | Educational Only</p>", unsafe_allow_html=True)
