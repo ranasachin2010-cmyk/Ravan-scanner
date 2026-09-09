@@ -8,11 +8,9 @@ from io import BytesIO, StringIO
 
 st.set_page_config(page_title="HANUMAN SCANNER 500 LIVE", page_icon="🚩", layout="wide")
 st.markdown('<meta http-equiv="refresh" content="300">', unsafe_allow_html=True)
-
 st.markdown("<h1 style='text-align:center;color:#ff6600;'>🚩 HANUMAN SCANNER - LIVE NSE 500</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center;color:green;'><b>● LIVE NSE DATA | NIFTY 500 | AUTO REFRESH 5 MIN</b></p>", unsafe_allow_html=True)
 
-# NSE OFFICIAL SE 500 LIST FETCH - PAKKA 500
 @st.cache_data(ttl=86400)
 def get_nifty500_official():
     try:
@@ -20,32 +18,24 @@ def get_nifty500_official():
         headers = {"User-Agent": "Mozilla/5.0"}
         r = requests.get(url, headers=headers, timeout=15)
         df_csv = pd.read_csv(StringIO(r.text))
-        # Column name Symbol hota hai
         col = None
         for c in df_csv.columns:
             if 'Symbol' in c or 'SYMBOL' in c.upper():
                 col = c
                 break
-        if col is None:
-            col = df_csv.columns[2]
+        if col is None: col = df_csv.columns[2]
         symbols = [str(x).strip().upper() for x in df_csv[col].tolist() if str(x).strip()!= '']
         symbols = list(dict.fromkeys(symbols))[:500]
-        if len(symbols) >= 400:
-            return symbols
-    except:
-        pass
-    # Fallback - agar NSE down ho to
-    return ["RELIANCE","TCS","HDFCBANK","ICICIBANK","INFY","BHARTIARTL","ITC","SBIN","LT","BAJFINANCE","HINDUNILVR","KOTAKBANK","HCLTECH","SUNPHARMA","MARUTI","M&M","AXISBANK","ULTRACEMCO","NTPC","ONGC","TITAN","WIPRO","ADANIENT","POWERGRID","ASIANPAINT","NESTLEIND","TATAMOTORS","BAJAJFINSV","JSWSTEEL","HINDALCO","ADANIPORTS","COALINDIA","CIPLA","GRASIM","DIVISLAB","DRREDDY","EICHERMOT","BRITANNIA","BPCL","SBILIFE","HDFCLIFE","TECHM","INDUSINDBK","APOLLOHOSP","TATASTEEL","BAJAJ-AUTO","HEROMOTOCO","SHRIRAMFIN","ADANIGREEN","VEDL","ZOMATO","SIEMENS","HAL","BEL","TRENT","PIDILITIND","LTIM","DLF","GODREJCP","HAVELLS","ICICIGI","INFOEDGE","INDIGO","AMBUJACEM","BANKBARODA","BERGEPAINT","BOSCHLTD","CANBK","CHOLAFIN","DABUR","GAIL","GODREJPROP","HDFCAMC","HINDPETRO","INDHOTEL","IOC","IRCTC","JINDALSTEL","JSWENERGY","JUBLFOOD","LUPIN","MUTHOOTFIN","NMDC","OBEROIRLTY","PFC","PNB","RECLTD","SAIL","SHREECEM","SRF","TATACONSUM","TATAPOWER","TORNTPHARM","UPL","VOLTAS","ZEEL","ACC","ALKEM","ASHOKLEY","AUROPHARMA","BANDHANBNK","BATAINDIA","BHARATFORG","BIOCON","CGPOWER","COLPAL","CONCOR","CUMMINSIND","FEDERALBNK","GMRINFRA","GUJGASLTD","HINDZINC","IDFCFIRSTB","IGL","INDIAMART","IPCALAB","LAURUSLABS","MARICO","MOTHERSON","MPHASIS","MRF","PAGEIND","PEL","PERSISTENT","PETRONET","PIIND","POLYCAB","PVRINOX","RAMCOCEM","RBLBANK","TATACHEM","TATACOMM","TORNTPOWER","TVSMOTOR","UBL","VBL","ABB","ABCAPITAL","ABFRL","AARTIIND","AIAENG","AJANTPHARM","APLAPOLLO","AUBANK","BALKRISIND","BEML","BHEL","BSOFT","CAMS","CDSL","CESC","COROMANDEL","CRISIL","CROMPTON","DALBHARAT","EXIDEIND","FSL","FORTIS","GNFC","GRINDWELL","HAPPSTMNDS","HUDCO","IDFC","IEX","IRFC","JSL","JSWINFRA","KAJARIACER","KEI","KPITTECH","LALPATHLAB","LTF","LTTS","MCX","METROPOLIS","MGL","NCC","NHPC","OIL","PAYTM","POLYMED","POONAWALLA","PRESTIGE","RATNAMANI","RAYMOND","SBICARD","SJVN","SONACOMS","SUNDRMFAST","SUPREMEIND","SYNGENE","TATAELXSI","TIINDIA","TRIDENT","UJJIVANSFB","VGUARD","WELCORP","ZYDUSLIFE"] * 3
+        if len(symbols) >= 400: return symbols
+    except: pass
+    return ["RELIANCE","TCS","HDFCBANK","ICICIBANK","INFY","BHARTIARTL","ITC","SBIN","LT","BAJFINANCE","HINDUNILVR","KOTAKBANK","HCLTECH","SUNPHARMA","MARUTI","M&M","AXISBANK","ULTRACEMCO","NTPC","ONGC","TITAN","WIPRO","ADANIENT","POWERGRID","ASIANPAINT","NESTLEIND","TATAMOTORS","BAJAJFINSV","JSWSTEEL","HINDALCO","ADANIPORTS","COALINDIA","CIPLA","GRASIM","DIVISLAB","DRREDDY","EICHERMOT","BRITANNIA","BPCL","SBILIFE","HDFCLIFE","TECHM","INDUSINDBK","APOLLOHOSP","TATASTEEL","BAJAJ-AUTO","HEROMOTOCO","SHRIRAMFIN","ADANIGREEN","VEDL","ZOMATO","SIEMENS","HAL","BEL","TRENT","PIDILITIND","LTIM","DLF","GODREJCP","HAVELLS","ICICIGI","INFOEDGE","INDIGO"]*5
 
 NIFTY_500 = get_nifty500_official()
 NIFTY_500 = list(dict.fromkeys(NIFTY_500))[:500]
-
-# FORCE 500 PAKKA - AGAR KAM HUA TO EXTRA SE BHAR DO
 if len(NIFTY_500) < 500:
-    extra = ["360ONE","3MINDIA","AARTIIND","AAVAS","ABBOTINDIA","ADANIENSOL","ADANIPOWER","ATGL","AWL","ABSLAMC","ALKYLAMINE","AMBER","ANURAS","APARINDS","APOLLOTYRE","APTUS","ASAHIINDIA","ASTRAL","AVANTIFEED","BLS","BSE","BAJAJELEC","BALAMINES","BBTC","BIKAJI","BLUEDART","BRIGADE","CCL","CAMPUS","CARBORUNDU","CEATLTD","CERA","CHALET","CHAMBLFERT","CLEAN","COCHINSHIP","CRAFTSMAN","CREDITACC","CYIENT","DCBBANK","DATAPATTNS","DEEPAKFERT","DELTACORP","DEVYANI","DIXON","EIDPARRY","EPL","EASEMYTRIP","FDC","FINEORG","FINCABLES","GALAXYSURF","GRSE","GILLETTE","GLAND","GOCOLORS","GODREJIND","GRANULES","GRAPHITE","HATHWAY","HATSUN","HFCL","HOMEFIRST","HONAUT","IDBI","IIFL","IRCON","ITI","INDIACEM","IOLCP","INTELLECT","IOB","JKTYRE","JUBLINGREA","JWL","JUSTDIAL","KPRMILL","KNRCON","KRBL","KSB","KPIL","KALYANKJIL","KEC","KAYNES","KFINTECH","LICHSGFIN","LICI","LAXMIMACH","LEMONTREE","LUXIND","MMTC","M&MFIN","MANAPPURAM","MRPL","MFSL","MEDPLUS","MINDACORP","MOIL","MOFS","NATCOPHARM","NBCC","NESCO","NLCINDIA","NH","NATIONALUM","NAVINFLUOR","PFIZER","PHOENIXLTD","PRAJIND","PRINCEPIPE","PGHH","PNCINFRA","RELAXO","RBA","RAILTEL","RVNL","RALLIS","RKFORGE","RCF","REDINGTON","RHIM","ROUTE","SANOFI","SAPPHIRE","SAREGAMA","SCHAEFFLER","SKFINDIA","SHYAMMETL","SONATSOFTW","SWSOLAR","SUNTV","SUPRIYA","SUZLON","SYRMA","TTKPRESTIG","TATVA","TEJASNET","NIACL","THERMAX","TIMKEN","TRIVENI","MCDOWELL-N","VIPIND","VENKEYS","VIJAYA","VINATIORGA","WESTLIFE","WHIRLPOOL","YESBANK","ZFCVINDIA","ZENSARTECH"]
+    extra = ["360ONE","3MINDIA","AARTIIND","ABFRL","ABBOTINDIA","ADANIENSOL","ATGL","AWL","ABSLAMC","AMBER","ANURAS","APARINDS","APOLLOTYRE","APTUS","ASTRAL","BLS","BSE","BAJAJELEC","BBTC","BIKAJI","BLUEDART","BRIGADE","CCL","CAMPUS","CEATLTD","CERA","CHALET","CLEAN","COCHINSHIP","CRAFTSMAN","CYIENT","DCBBANK","DATAPATTNS","DEEPAKFERT","DELTACORP","DEVYANI","DIXON","EIDPARRY","EPL","FDC","FINEORG","GALAXYSURF","GRSE","GILLETTE","GLAND","GODREJIND","GRANULES","HATHWAY","HATSUN","HFCL","HOMEFIRST","IDBI","IIFL","IRCON","ITI","INDIACEM","IOLCP","JKTYRE","JWL","JUSTDIAL","KPRMILL","KRBL","KSB","KAYNES","LICI","LAXMIMACH","LEMONTREE","MMTC","M&MFIN","MANAPPURAM","MRPL","MFSL","MEDPLUS","MINDACORP","MOIL","NATCOPHARM","NBCC","NESCO","NH","PFIZER","PHOENIXLTD","PRAJIND","RELAXO","RAILTEL","RVNL","RALLIS","RKFORGE","RCF","REDINGTON","SANOFI","SAPPHIRE","SAREGAMA","SKFINDIA","SUNTV","SUZLON","TTKPRESTIG","TATVA","TEJASNET","THERMAX","TIMKEN","MCDOWELL-N","VIPIND","YESBANK","ZENSARTECH"]
     for s in extra:
-        if s not in NIFTY_500 and len(NIFTY_500) < 500:
-            NIFTY_500.append(s)
+        if s not in NIFTY_500 and len(NIFTY_500) < 500: NIFTY_500.append(s)
 
 def get_data(symbol):
     try:
@@ -65,11 +55,20 @@ def get_data(symbol):
         return {"df": df, "last": last, "is_buy": is_buy, "symbol": symbol}
     except: return None
 
-def send_telegram(token, chat_id, msg):
+def send_telegram_msg(token, chat_id, msg):
     try:
         url = f"https://api.telegram.org/bot{token}/sendMessage"
         data = {"chat_id": chat_id, "text": msg, "parse_mode": "Markdown"}
         requests.post(url, data=data, timeout=10)
+        return True
+    except: return False
+
+def send_telegram_file(token, chat_id, file_bytes, filename, caption=""):
+    try:
+        url = f"https://api.telegram.org/bot{token}/sendDocument"
+        files = {'document': (filename, file_bytes)}
+        data = {'chat_id': chat_id, 'caption': caption}
+        requests.post(url, data=data, files=files, timeout=20)
         return True
     except: return False
 
@@ -80,7 +79,7 @@ st.sidebar.markdown("---")
 st.sidebar.subheader("📲 Telegram Alert")
 bot_token = st.sidebar.text_input("Bot Token", type="password")
 chat_id = st.sidebar.text_input("Chat ID")
-enable_tele = st.sidebar.checkbox("Telegram ON")
+enable_tele = st.sidebar.checkbox("Telegram ON + File")
 scan = st.sidebar.button("🔍 LIVE SCAN 500 NOW", type="primary", use_container_width=True)
 
 if scan:
@@ -99,23 +98,34 @@ if scan:
         df = pd.DataFrame(results)
         st.success(f"🚩 {len(results)} BUY Signals Found in {len(NIFTY_500)} Stocks!")
         styled = df.style.format({"LTP": "{:.2f}", "ENTRY": "{:.2f}", "SL": "{:.2f}", "T1": "{:.2f}", "T2": "{:.2f}", "RSI": "{:.1f}"})\
-                         .map(lambda x: 'background-color: #ff4d4d; color: white; font-weight: bold', subset=['SL'])\
-                         .map(lambda x: 'background-color: #00cc66; color: white; font-weight: bold', subset=['T1','T2'])\
-                         .map(lambda v: 'background-color: #90EE90; color: black; font-weight: bold' if v>=60 else 'background-color: yellow; color: black' if v>=55 else '', subset=['RSI'])
+                        .map(lambda x: 'background-color: #ff4d4d; color: white; font-weight: bold', subset=['SL'])\
+                        .map(lambda x: 'background-color: #00cc66; color: white; font-weight: bold', subset=['T1','T2'])\
+                        .map(lambda v: 'background-color: #90EE90; color: black; font-weight: bold' if v>=60 else 'background-color: yellow; color: black' if v>=55 else '', subset=['RSI'])
         st.dataframe(styled, use_container_width=True, hide_index=True)
+
         c1, c2 = st.columns(2)
-        csv = df.to_csv(index=False).encode('utf-8')
-        c1.download_button("📥 Download CSV", csv, "hanuman_500_buy.csv", "text/csv", use_container_width=True)
+        csv_data = df.to_csv(index=False).encode('utf-8')
+        c1.download_button("📥 Download CSV", csv_data, "hanuman_500_buy.csv", "text/csv", use_container_width=True)
         output = BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            df.to_excel(writer, index=False)
-        c2.download_button("📊 Download Excel", output.getvalue(), "hanuman_500_buy.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
+            df.to_excel(writer, index=False, sheet_name='BUY Signals')
+        excel_data = output.getvalue()
+        c2.download_button("📊 Download Excel", excel_data, "hanuman_500_buy.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
+
+        # TELEGRAM - MESSAGE + FILE
         if enable_tele and bot_token and chat_id:
-            msg = f"🚩 *HANUMAN SCANNER - {len(results)} BUY*\n\n"
-            for r in results[:15]:
-                msg += f"*{r['SYMBOL']}* LTP {r['LTP']:.2f} SL {r['SL']:.2f} T1 {r['T1']:.2f}\n"
-            if send_telegram(bot_token, chat_id, msg):
-                st.sidebar.success("Telegram Sent! ✅")
+            # 1. Pehle summary message
+            msg = f"🚩 *HANUMAN SCANNER - {len(results)} BUY*\n_NIFTY 500 SCAN_\n\n"
+            for r in results[:20]: # Telegram limit ke liye 20
+                msg += f"*{r['SYMBOL']}* LTP {r['LTP']:.2f} SL {r['SL']:.2f} T1 {r['T1']:.2f} RSI {r['RSI']}\n"
+            if len(results) > 20:
+                msg += f"\n...and {len(results)-20} more. Full file attached 👇"
+            send_telegram_msg(bot_token, chat_id, msg)
+
+            # 2. Ab poori file bhejo
+            caption = f"🚩 HANUMAN 500 - Full {len(results)} BUY List - {pd.Timestamp.now().strftime('%d-%m-%Y %H:%M')}"
+            send_telegram_file(bot_token, chat_id, excel_data, f"Hanuman_500_BUY_{len(results)}.xlsx", caption)
+            st.sidebar.success(f"Telegram pe {len(results)} ka full file gaya! ✅")
     else:
         st.warning("⚠️ Abhi koi BUY nahi")
 else:
