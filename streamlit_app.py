@@ -3,8 +3,6 @@ import yfinance as yf
 import pandas as pd
 import plotly.graph_objects as go
 from concurrent.futures import ThreadPoolExecutor
-import requests
-from io import BytesIO
 
 st.set_page_config(page_title="HANUMAN SCANNER 500 LIVE", page_icon="🚩", layout="wide")
 st.markdown('<meta http-equiv="refresh" content="300">', unsafe_allow_html=True)
@@ -13,7 +11,7 @@ st.markdown("""<style>[data-testid="stElementToolbar"]{display:none!important}.s
 st.markdown("<h1 style='text-align:center;color:#ff6600;'>🚩 HANUMAN SCANNER - LIVE NSE 500</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center;color:green;'><b>● LIVE NSE DATA | NIFTY 500 | AUTO REFRESH 5 MIN</b></p>", unsafe_allow_html=True)
 
-NIFTY_500 = ["RELIANCE","TCS","HDFCBANK","ICICIBANK","INFY","BHARTIARTL","ITC","SBIN","LT","BAJFINANCE","HINDUNILVR","KOTAKBANK","HCLTECH","SUNPHARMA","MARUTI","M&M","AXISBANK","ULTRACEMCO","NTPC","ONGC","TITAN","WIPRO","ADANIENT","POWERGRID","ASIANPAINT","NESTLEIND","TATAMOTORS","BAJAJFINSV","JSWSTEEL","HINDALCO","ADANIPORTS","COALINDIA","CIPLA","GRASIM","DIVISLAB","DRREDDY","EICHERMOT","BRITANNIA","BPCL","SBILIFE","HDFCLIFE","TECHM","INDUSINDBK","APOLLOHOSP","TATASTEEL","BAJAJ-AUTO","HEROMOTOCO","SHRIRAMFIN","ADANIGREEN","VEDL","ZOMATO","SIEMENS","HAL","BEL","TRENT","PIDILITIND","LTIM","DLF","GODREJCP","HAVELLS","ICICIGI","INFOEDGE","INDIGO","AMBUJACEM","BANKBARODA","BERGEPAINT","BOSCHLTD","CANBK","CHOLAFIN","DABUR","GAIL","GODREJPROP","HDFCAMC","HINDPETRO","INDHOTEL","IOC","IRCTC","JINDALSTEL","JSWENERGY","JUBLFOOD","LUPIN","MUTHOOTFIN","NMDC","OBEROIRLTY","PFC","PNB","RECLTD","SAIL","SHREECEM","SRF","TATACONSUM","TATAPOWER","TORNTPHARM","UPL","VOLTAS","ZEEL","ACC","ALKEM","ASHOKLEY","AUROPHARMA","BANDHANBNK","BATAINDIA","BHARATFORG","BIOCON","CGPOWER","COLPAL","CONCOR","CUMMINSIND","FEDERALBNK","GMRINFRA","GUJGASLTD","HINDZINC","IDFCFIRSTB","IGL","INDIAMART","IPCALAB","LAURUSLABS","MARICO","MOTHERSON","MPHASIS","MRF","PAGEIND","PEL","PERSISTENT","PETRONET","PIIND","POLYCAB","PVRINOX","RAMCOCEM","RBLBANK","TATACHEM","TATACOMM","TORNTPOWER","TVSMOTOR","UBL","VBL","ABB","ABCAPITAL","ABFRL","AARTIIND","AIAENG","AJANTPHARM","APLAPOLLO","AUBANK","BALKRISIND","BEML","BHEL","BSOFT","CAMS","CDSL","CESC","COROMANDEL","CRISIL","CROMPTON","DALBHARAT","EXIDEIND","FSL","FORTIS","GNFC","GRINDWELL","HAPPSTMNDS","HUDCO","IDFC","IEX","IRFC","JSL","JSWINFRA","KAJARIACER","KEI","KPITTECH","LALPATHLAB","LTF","LTTS","MCX","METROPOLIS","MGL","NCC","NHPC","OIL","PAYTM","POLYMED","POONAWALLA","PRESTIGE","RATNAMANI","RAYMOND","SBICARD","SJVN","SONACOMS","SUNDRMFAST","SUPREMEIND","SYNGENE","TATAELXSI","TIINDIA","TRIDENT","UJJIVANSFB","VGUARD","WELCORP","ZYDUSLIFE","AFFLE","ANGELONE","ASTERDM","ATUL","BDL","BLUESTARCO","CENTRALBK","COFORGE","DELHIVERY","EIHOTEL","ELGIEQUIP","GICRE","GLAXO","GSPL","HBLPOWER","IDBI","IIFL","IRB","JBCHEPHARM","JKCEMENT","KARURVYSYA","KIMS","MASTEK","MAZDOCK","MOTILALOFS","NYKAA","OLECTRA","PATANJALI","PNBHOUSING","RADICO","RITES","SOBHA","SOLARINDS","STARHEALTH","SUVENPHAR","TANLA","TEAMLEASE","UCOBANK","UNIONBANK","VAIBHAVGBL","WELSPUNLIV","ZYDUSWELL"]
+NIFTY_500 = ["RELIANCE","TCS","HDFCBANK","ICICIBANK","INFY","BHARTIARTL","ITC","SBIN","LT","BAJFINANCE","HINDUNILVR","KOTAKBANK","HCLTECH","SUNPHARMA","MARUTI","M&M","AXISBANK","ULTRACEMCO","NTPC","ONGC","TITAN","WIPRO","ADANIENT","POWERGRID","ASIANPAINT","NESTLEIND","TATAMOTORS","BAJAJFINSV","JSWSTEEL","HINDALCO","ADANIPORTS","COALINDIA","CIPLA","GRASIM","DIVISLAB","DRREDDY","EICHERMOT","BRITANNIA","BPCL","SBILIFE","HDFCLIFE","TECHM","INDUSINDBK","APOLLOHOSP","TATASTEEL","BAJAJ-AUTO","HEROMOTOCO","SHRIRAMFIN","ADANIGREEN","VEDL","ZOMATO","SIEMENS","HAL","BEL","TRENT","PIDILITIND","LTIM","DLF","GODREJCP","HAVELLS","ICICIGI","INFOEDGE","INDIGO","AMBUJACEM","BANKBARODA","BERGEPAINT","BOSCHLTD","CANBK","CHOLAFIN","DABUR","GAIL","GODREJPROP","HDFCAMC","HINDPETRO","INDHOTEL","IOC","IRCTC","JINDALSTEL","JSWENERGY","JUBLFOOD","LUPIN","MUTHOOTFIN","NMDC","OBEROIRLTY","PFC","PNB","RECLTD","SAIL","SHREECEM","SRF","TATACONSUM","TATAPOWER","TORNTPHARM","UPL","VOLTAS","ZEEL","ACC","ALKEM","ASHOKLEY","AUROPHARMA","BANDHANBNK","BATAINDIA","BHARATFORG","BIOCON","CGPOWER","COLPAL","CONCOR","CUMMINSIND","FEDERALBNK","GMRINFRA","GUJGASLTD","HINDZINC","IDFCFIRSTB","IGL","INDIAMART","IPCALAB","LAURUSLABS","MARICO","MOTHERSON","MPHASIS","MRF","PAGEIND","PEL","PERSISTENT","PETRONET","PIIND","POLYCAB","PVRINOX","RAMCOCEM","RBLBANK","TATACHEM","TATACOMM","TORNTPOWER","TVSMOTOR","UBL","VBL","ABB","ABCAPITAL","ABFRL","AARTIIND","AIAENG","AJANTPHARM","APLAPOLLO","AUBANK","BALKRISIND","BEML","BHEL","BSOFT","CAMS","CDSL","CESC","COROMANDEL","CRISIL","CROMPTON","DALBHARAT","EXIDEIND","FSL","FORTIS","GNFC","GRINDWELL","HAPPSTMNDS","HUDCO","IDFC","IEX","IRFC","JSL","JSWINFRA","KAJARIACER","KEI","KPITTECH","LALPATHLAB","LTF","LTTS","MCX","METROPOLIS","MGL","NCC","NHPC","OIL","PAYTM","POLYMED","POONAWALLA","PRESTIGE","RATNAMANI","RAYMOND","SBICARD","SJVN","SONACOMS","SUNDRMFAST","SUPREMEIND","SYNGENE","TATAELXSI","TIINDIA","TRIDENT","UJJIVANSFB","VGUARD","WELCORP","ZYDUSLIFE","AFFLE","ANGELONE","ASTERDM","ATUL","BDL","BLUESTARCO","CENTRALBK","COFORGE","DELHIVERY","EIHOTEL","ELGIEQUIP","GICRE","GLAXO","GSPL","HBLPOWER","IDBI","IIFL","IRB","JBCHEPHARM","JKCEMENT","KARURVYSYA","KIMS","MASTEK","MAZDOCK","MOTILALOFS","NYKAA","OLECTRA","PATANJALI","PNBHOUSING","RADICO","RITES","SOBHA","SOLARINDS","STARHEALTH","SUVENPHAR","TANLA","TEAMLEASE","UCOBANK","UNIONBANK","VAIBHAVGBL","WELSPUNLIV","ZYDUSWELL","360ONE","3MINDIA","ABBOTINDIA","ADANIENSOL","ADANIPOWER","ATGL","AWL","ABSLAMC","ALKYLAMINE","ALOKINDS","AMBER","ANURAS","APARINDS","APOLLOTYRE","APTUS","ASAHIINDIA","ASTRAL","AVANTIFEED","BLS","BSE","BAJAJELEC","BAJAJHLDNG","BALAMINES","BALMLAWRIE","BALRAMPUR","BANKINDIA","BAYERCROP","BBTC","BDL","BIKAJI","BIRLACORP","BLUEDART","BLUESTARCO","BRIGADE","BRITANNIA","MAPMYINDIA","CCL","CSBBANK","CAMPUS","CANFINHOME","CAPLIPOINT","CARBORUNDU","CASTROLIND","CEATLTD","CERA","CHALET","CHAMBLFERT","CHOLAHLDNG","CUB","CLEAN","COCHINSHIP","CRAFTSMAN","CREDITACC","CYIENT","DCBBANK","DCMSHRIRAM","DATAPATTNS","DEEPAKFERT","DEEPAKNTR","DELTACORP","DEVYANI","DIXON","EIDPARRY","EPL","EASEMYTRIP","ELGIEQUIP","EMAMILTD","ENDURANCE","ENGINERSIN","ESCORTS","EXIDEIND","FDC","FACT","FINEORG","FINCABLES","FINPIPE","FORTIS","GAIL","GALAXYSURF","GRSE","GARFIBRES","GESHIP","GILLETTE","GLAND","GOCOLORS","GPPL","GODFRYPHLP","GODREJIND","GRANULES","GRAPHITE","GUJALKALI","GAEL","FLUOROCHEM","GMDCLTD","GNFC","GPIL","GSFC","HEG","HATHWAY","HATSUN","HSCL","HFCL","HINDCOPPER","HINDZINC","POWERINDIA","HOMEFIRST","HONAUT","ICICIPRULI","IDFCFIRSTB","IIFL","IRCON","ITI","INDIACEM","INDIANB","IDEA","IOLCP","INTELLECT","INDIAGLYCO","INFIBEAM","INGERRAND","IOB","ISGEC","JKTYRE","JUBLINGREA","JUBLPHARMA","JWL","JUSTDIAL","JYOTHYLAB","KPRMILL","KNRCON","KRBL","KSB","KPIL","KALYANKJIL","KEC","KAYNES","KFINTECH","LICHSGFIN","LICI","LAURUSLABS","LAXMIMACH","LEMONTREE","LUXIND","MMTC","MAHSEAMLES","M&MFIN","MANAPPURAM","MRPL","MFSL","MEDPLUS","METROBRAND","MINDACORP","MIDHANI","MOIL","MOFS","MURUDCERA","NATCOPHARM","NBCC","NESCO","NLCINDIA","NSLNISP","NH","NATIONALUM","NAVINFLUOR","NAM-INDIA","NUVAMA","OLECTRA","PERSISTENT","PFIZER","PHOENIXLTD","PPL","PFC","PRAJIND","PRINCEPIPE","PRSMJOHNSN","PGHH","PGHL","PNBHOUSING","PNCINFRA","RELAXO","RBA","RAILTEL","RVNL","RAJESHEXPO","RALLIS","RKFORGE","RCF","REDINGTON","RHIM","ROUTE","SAIL","SANOFI","SAPPHIRE","SARDAEN","SAREGAMA","SCHAEFFLER","SKFINDIA","SHRIRAMFIN","SHYAMMETL","SOBHA","SONATSOFTW","SWSOLAR","SUNTV","SUPRIYA","SUZLON","SYRMA","TTKPRESTIG","TATACHEM","TATACOMM","TATACONSUM","TATAELXSI","TATVA","TEJASNET","NIACL","THERMAX","TIMKEN","TMB","TRIVENI","TRITURBINE","MCDOWELL-N","VIPIND","VENKEYS","VIJAYA","VINATIORGA","WESTLIFE","WHIRLPOOL","YESBANK","ZFCVINDIA","ZENSARTECH","ZYDUSWELL"]
 
 NIFTY_500 = list(dict.fromkeys(NIFTY_500))[:500]
 
@@ -35,25 +33,9 @@ def get_data(symbol):
         return {"df": df, "last": last, "is_buy": is_buy, "symbol": symbol}
     except: return None
 
-def send_telegram(token, chat_id, msg):
-    try:
-        url = f"https://api.telegram.org/bot{token}/sendMessage"
-        data = {"chat_id": chat_id, "text": msg, "parse_mode": "Markdown"}
-        requests.post(url, data=data, timeout=10)
-        return True
-    except: return False
-
-# SIDEBAR
 st.sidebar.title("🚩 Hanuman Scanner")
 st.sidebar.metric("Total Stocks", len(NIFTY_500))
 st.sidebar.success("● NSE LIVE 500 | Auto 5 Min")
-
-st.sidebar.markdown("---")
-st.sidebar.subheader("📲 Telegram Alert")
-bot_token = st.sidebar.text_input("Bot Token", type="password", placeholder="1234:AAH...")
-chat_id = st.sidebar.text_input("Chat ID", placeholder="123456789")
-enable_tele = st.sidebar.checkbox("Telegram ON")
-
 scan = st.sidebar.button("🔍 LIVE SCAN 500 NOW", type="primary", use_container_width=True)
 
 if scan:
@@ -68,53 +50,10 @@ if scan:
             bar.progress((i+1)/len(NIFTY_500))
             status.text(f"Scanning {i+1}/{len(NIFTY_500)} | BUY: {len(results)}")
     bar.empty(); status.empty()
-    
     if results:
-        df = pd.DataFrame(results)
         st.success(f"🚩 {len(results)} BUY Signals Found in {len(NIFTY_500)} Stocks!")
-        
-        # 3. COLOR STYLING
-        def color_rsi(val):
-            if val >= 70: color = '#00ff00'
-            elif val >= 60: color = '#90EE90'
-            elif val >= 55: color = '#FFFF00'
-            else: color = ''
-            return f'background-color: {color}; color: black; font-weight: bold'
-
-        def style_df(df):
-            return df.style.applymap(lambda x: 'background-color: #ff4d4d; color: white; font-weight: bold', subset=['SL'])\
-                         .applymap(lambda x: 'background-color: #00cc66; color: white; font-weight: bold', subset=['T1','T2'])\
-                         .applymap(color_rsi, subset=['RSI'])
-
-        st.dataframe(style_df(df), use_container_width=True, hide_index=True)
-
-        # 1. DOWNLOAD BUTTONS
-        col1, col2 = st.columns(2)
-        csv = df.to_csv(index=False).encode('utf-8')
-        col1.download_button("📥 Download CSV", csv, "hanuman_500_buy.csv", "text/csv", use_container_width=True)
-        
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            df.to_excel(writer, index=False, sheet_name='BUY Signals')
-        excel_data = output.getvalue()
-        col2.download_button("📊 Download Excel", excel_data, "hanuman_500_buy.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
-
-        # 2. TELEGRAM ALERT
-        if enable_tele and bot_token and chat_id:
-            msg = f"🚩 *HANUMAN SCANNER - {len(results)} BUY SIGNALS*\n\n"
-            for r in results[:15]: # Top 15 bhejenge telegram pe
-                msg += f"*{r['SYMBOL']}* - LTP {r['LTP']} | SL {r['SL']} | T1 {r['T1']} | RSI {r['RSI']}\n"
-            if len(results) > 15:
-                msg += f"\n...and {len(results)-15} more. Check App!"
-            if send_telegram(bot_token, chat_id, msg):
-                st.sidebar.success("Telegram Sent! ✅")
-            else:
-                st.sidebar.error("Telegram Failed!")
-        elif enable_tele:
-            st.sidebar.warning("Bot Token / Chat ID dalo!")
-
-    else: 
-        st.warning("⚠️ Abhi koi BUY nahi")
+        st.dataframe(pd.DataFrame(results), use_container_width=True, hide_index=True)
+    else: st.warning("⚠️ Abhi koi BUY nahi")
 else:
     st.info(f"👈 SCAN NOW dabao - {len(NIFTY_500)} stocks LIVE scan | Auto Refresh 5 min ON hai")
 
