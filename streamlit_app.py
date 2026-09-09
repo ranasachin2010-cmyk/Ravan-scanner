@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 st.set_page_config(page_title="HANUMAN SCANNER LIVE", page_icon="🚩", layout="wide")
 st.markdown("<h1 style='text-align:center;color:#ff6600;'>🚩 HANUMAN SCANNER - LIVE NSE</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center;color:green;'><b>● LIVE NSE DATA | 500 Stocks | 100% Ravan Clone</b></p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;color:green;'><b>● LIVE NSE DATA | 100% Ravan Clone</b></p>", unsafe_allow_html=True)
 
 NIFTY_500 = [
 "RELIANCE","TCS","HDFCBANK","ICICIBANK","INFY","BHARTIARTL","ITC","SBIN","LT","BAJFINANCE",
@@ -82,6 +82,7 @@ if scan:
         st.dataframe(pd.DataFrame(results), use_container_width=True, hide_index=True)
     else:
         st.warning("⚠️ Abhi koi BUY nahi")
+
 else:
     st.info(f"👈 SCAN NOW dabao - {len(NIFTY_500)} stocks LIVE scan hoga!")
 
@@ -102,4 +103,5 @@ if live:
     fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['EMA21'], name="EMA21", line=dict(color="orange")))
     fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['EMA50'], name="EMA50", line=dict(color="red")))
     fig.update_layout(template="plotly_dark", height=450, hovermode="x unified")
-    st.plotly_chart(fig, use_container_width=True)
+    # TOOLBAR HATANE WALI LINE
+    st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'displaylogo': False})
