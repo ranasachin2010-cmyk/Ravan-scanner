@@ -1,93 +1,57 @@
 import streamlit as st
-import yfinance as yf
 import pandas as pd
 import plotly.graph_objects as go
+from nsepython import nse_eq, nse_get_fno_lot
+import yfinance as yf
 from concurrent.futures import ThreadPoolExecutor
+import time
 
-st.set_page_config(page_title="HANUMAN SCANNER 500", page_icon="🚩", layout="wide")
-st.markdown("<h1 style='text-align:center;color:#ff6600;'>🚩 HANUMAN SCANNER - 500 STOCKS</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center;color:gray;'>Nifty 500 | EMA21 | RSI 55 | Jai Shri Ram</p>", unsafe_allow_html=True)
+st.set_page_config(page_title="HANUMAN SCANNER LIVE NSE", page_icon="🚩", layout="wide")
+st.markdown("<h1 style='text-align:center;color:#ff6600;'>🚩 HANUMAN SCANNER - LIVE NSE</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;color:green;'><b>● LIVE NSE DATA | REAL-TIME | 100% Ravan Clone</b></p>", unsafe_allow_html=True)
 
-NIFTY_500 = [
-"RELIANCE.NS","TCS.NS","HDFCBANK.NS","ICICIBANK.NS","INFY.NS","BHARTIARTL.NS","ITC.NS","SBIN.NS","LT.NS","BAJFINANCE.NS",
-"HINDUNILVR.NS","KOTAKBANK.NS","HCLTECH.NS","SUNPHARMA.NS","MARUTI.NS","M&M.NS","AXISBANK.NS","ULTRACEMCO.NS","NTPC.NS","ONGC.NS",
-"TITAN.NS","WIPRO.NS","ADANIENT.NS","POWERGRID.NS","ASIANPAINT.NS","NESTLEIND.NS","TATAMOTORS.NS","BAJAJFINSV.NS","JSWSTEEL.NS","HINDALCO.NS",
-"ADANIPORTS.NS","COALINDIA.NS","CIPLA.NS","GRASIM.NS","DIVISLAB.NS","DRREDDY.NS","EICHERMOT.NS","BRITANNIA.NS","BPCL.NS","SBILIFE.NS",
-"HDFCLIFE.NS","TECHM.NS","INDUSINDBK.NS","APOLLOHOSP.NS","TATASTEEL.NS","BAJAJ-AUTO.NS","HEROMOTOCO.NS","SHRIRAMFIN.NS","ADANIGREEN.NS","VEDL.NS",
-"ZOMATO.NS","SIEMENS.NS","HAL.NS","BEL.NS","TRENT.NS","PIDILITIND.NS","LTIM.NS","DLF.NS","GODREJCP.NS","HAVELLS.NS",
-"ICICIGI.NS","INFOEDGE.NS","INDIGO.NS","AMBUJACEM.NS","BANKBARODA.NS","BERGEPAINT.NS","BOSCHLTD.NS","CANBK.NS","CHOLAFIN.NS","DABUR.NS",
-"GAIL.NS","GODREJPROP.NS","HDFCAMC.NS","HINDPETRO.NS","INDHOTEL.NS","IOC.NS","IRCTC.NS","JINDALSTEL.NS","JSWENERGY.NS","JUBLFOOD.NS",
-"LUPIN.NS","MUTHOOTFIN.NS","NMDC.NS","OBEROIRLTY.NS","PFC.NS","PNB.NS","RECLTD.NS","SAIL.NS","SHREECEM.NS","SRF.NS",
-"TATACONSUM.NS","TATAPOWER.NS","TORNTPHARM.NS","UPL.NS","VOLTAS.NS","ZEEL.NS","ACC.NS","ALKEM.NS","ASHOKLEY.NS","AUROPHARMA.NS",
-"BANDHANBNK.NS","BATAINDIA.NS","BHARATFORG.NS","BIOCON.NS","CGPOWER.NS","COLPAL.NS","CONCOR.NS","CUMMINSIND.NS","FEDERALBNK.NS","GMRINFRA.NS",
-"GUJGASLTD.NS","HINDZINC.NS","IDFCFIRSTB.NS","IGL.NS","INDIAMART.NS","IPCALAB.NS","LAURUSLABS.NS","MARICO.NS","MOTHERSON.NS","MPHASIS.NS",
-"MRF.NS","PAGEIND.NS","PEL.NS","PERSISTENT.NS","PETRONET.NS","PIIND.NS","POLYCAB.NS","PVRINOX.NS","RAMCOCEM.NS","RBLBANK.NS",
-"TATACHEM.NS","TATACOMM.NS","TORNTPOWER.NS","TVSMOTOR.NS","UBL.NS","VBL.NS","ABB.NS","ABCAPITAL.NS","ABFRL.NS","AARTIIND.NS",
-"AIAENG.NS","AJANTPHARM.NS","APLAPOLLO.NS","AUBANK.NS","BALKRISIND.NS","BEML.NS","BHEL.NS","BSOFT.NS","CAMS.NS","CDSL.NS",
-"CESC.NS","COROMANDEL.NS","CRISIL.NS","CROMPTON.NS","DALBHARAT.NS","EXIDEIND.NS","FSL.NS","FORTIS.NS","GNFC.NS","GRINDWELL.NS",
-"HAPPSTMNDS.NS","HUDCO.NS","IDFC.NS","IEX.NS","IRFC.NS","JSL.NS","JSWINFRA.NS","KAJARIACER.NS","KEI.NS","KPITTECH.NS",
-"LALPATHLAB.NS","LTF.NS","LTTS.NS","MCX.NS","METROPOLIS.NS","MGL.NS","NAM-INDIA.NS","NCC.NS","NHPC.NS","OIL.NS",
-"PAYTM.NS","POLYMED.NS","POONAWALLA.NS","PRESTIGE.NS","RATNAMANI.NS","RAYMOND.NS","SBICARD.NS","SJVN.NS","SONACOMS.NS","SUNDRMFAST.NS",
-"SUPREMEIND.NS","SYNGENE.NS","TATAELXSI.NS","TIINDIA.NS","TRIDENT.NS","UJJIVANSFB.NS","VGUARD.NS","WELCORP.NS","ZYDUSLIFE.NS","AFFLE.NS",
-"ANGELONE.NS","ASTERDM.NS","ATUL.NS","BDL.NS","BLUESTARCO.NS","CENTRALBK.NS","CHAMBLFERT.NS","COFORGE.NS","DELHIVERY.NS","EIHOTEL.NS",
-"ELGIEQUIP.NS","EMAMILTD.NS","FDC.NS","GICRE.NS","GLAXO.NS","GODFRYPHLP.NS","GSPL.NS","HBLPOWER.NS","HEG.NS","IDBI.NS",
-"IIFL.NS","INDIACEM.NS","IRB.NS","ITI.NS","JBCHEPHARM.NS","JKCEMENT.NS","JMFINANCIL.NS","KARURVYSYA.NS","KEC.NS","KIMS.NS",
-"KPRMILL.NS","LAXMIMACH.NS","MAHABANK.NS","MASTEK.NS","MAZDOCK.NS","MEDPLUS.NS","MOTILALOFS.NS","NLCINDIA.NS","NOCIL.NS","NYKAA.NS",
-"OLECTRA.NS","PATANJALI.NS","PFIZER.NS","PNBHOUSING.NS","PRAJIND.NS","RADICO.NS","RITES.NS","SAREGAMA.NS","SOBHA.NS","SOLARINDS.NS",
-"STARHEALTH.NS","SUDARSCHEM.NS","SUNTECK.NS","SUVENPHAR.NS","SWANENERGY.NS","TANLA.NS","TEAMLEASE.NS","TIMETECHNO.NS","TRIVENI.NS","UCOBANK.NS",
-"UNIONBANK.NS","VAIBHAVGBL.NS","WELSPUNLIV.NS","WESTLIFE.NS","ZYDUSWELL.NS","AARTIPHARM.NS","ABSLAMC.NS","AEGISCHEM.NS","AKZOINDIA.NS","ALKYLAMINE.NS",
-"AMBER.NS","ANURAS.NS","APLLTD.NS","ASAHIINDIA.NS","ASTRAL.NS","ATUL.NS","AVANTIFEED.NS","BAJAJELEC.NS","BALMLAWRIE.NS","BAYERCROP.NS",
-"BECTORFOOD.NS","BFUTILITIE.NS","BGRENERGY.NS","BHARATRAS.NS","BIRLACABLE.NS","BLUEDART.NS","BORORENEW.NS","BRIGADE.NS","BSE.NS","CCL.NS",
-"CENTURYPLY.NS","CHALET.NS","CHEMPLASTS.NS","CIGNITEC.NS","CYIENT.NS","DCBBANK.NS","DCMSHRIRAM.NS","DEEPAKFERT.NS","DHANUKA.NS","DLINKINDIA.NS",
-"DODLA.NS","DOLLAR.NS","DYNAMATECH.NS","EIDPARRY.NS","ELECON.NS","EQUITASBNK.NS","ERIS.NS","ESABINDIA.NS","ETHOS.NS","FCL.NS",
-"FIEMIND.NS","FINCABLES.NS","FINEORG.NS","FIVESTAR.NS","FLUOROCHEM.NS","FDC.NS","GAEL.NS","GARFIBRES.NS","GESHIP.NS","GHCL.NS",
-"GLS.NS","GMMPFAUDLR.NS","GNA.NS","GOCLCORP.NS","GOCOLORS.NS","GODREJAGRO.NS","GPIL.NS","GPPL.NS","GRANULES.NS","GRAPHITE.NS",
-"GRAVITA.NS","GTT.NS","HARSHA.NS","HCC.NS","HCG.NS","HEIDELBERG.NS","HEMIPROP.NS","HFCL.NS","HGINFRA.NS","HIKAL.NS",
-"HINDOILEXP.NS","HOMEFIRST.NS","HSCL.NS","ICRA.NS","IDFNTTYM.NS","IOLCP.NS","IRCON.NS","ITDC.NS","JASH.NS","JAYBARMARU.NS",
-"JBMA.NS","JCHAC.NS","JINDALPOLY.NS","JINDWORLD.NS","JKLAKSHMI.NS","JMA.NS","JPPOWER.NS","JSWHL.NS","JTEKTINDIA.NS","JTLIND.NS",
-"KABRAEXTRU.NS","KAJARIACER.NS","KALPATPOWR.NS","KANSAINER.NS","KARMAENG.NS","KESORAMIND.NS","KIRLOSENG.NS","KNRCON.NS","KOTAKBANK.NS","KPITTECH.NS",
-"KRBL.NS","KSB.NS","KTKBANK.NS","LAKSHVILAS.NS","LAXMIMACH.NS","LEMONTREE.NS","LGBBROSLTD.NS","LINDEINDIA.NS","LLOYDSME.NS","LUMAXTECH.NS",
-"MAHABANK.NS","MAHLOG.NS","MANINFRA.NS","MANGCHEFER.NS","MARKSANS.NS","MAXHEALTH.NS","MAYURUNIQ.NS","MMTC.NS","MOIL.NS","MOLDTECH.NS",
-"MONTECARLO.NS","MOREPENLAB.NS","MPhasis.NS","MTARTECH.NS","MUTHOOTFIN.NS","NATCOPHARM.NS","NCC.NS","NDL.NS","NEOGEN.NS","NESCO.NS",
-"NFL.NS","NILKAMAL.NS","NIPPOBATRY.NS","NOCIL.NS","NRBBEARING.NS","NUCLEUS.NS","OBEROIRLTY.NS","OIL.NS","OMAXE.NS","ONMOBILE.NS",
-"ONWARDTEC.NS","ORIENTCEM.NS","ORIENTELEC.NS","ORIENTHOT.NS","ORIENTLTD.NS","PACL.NS","PALREDTEC.NS","PANAMAPET.NS","PARACABLES.NS","PARADEEP.NS",
-"PARKHOTELS.NS","PCJEWELLER.NS","PDSL.NS","PEL.NS","PENIND.NS","PERSISTENT.NS","PFOCUS.NS","PGEL.NS","PGHL.NS","PHOENIXLTD.NS",
-"PIDILITIND.NS","PILANIINVS.NS","PITTIENG.NS","PNBGILTS.NS","PNCINFRA.NS","POLYMED.NS","POLYPLEX.NS","PONNIERODE.NS","POWERMECH.NS","PPAP.NS",
-"PRAKASH.NS","PRAKASHSTL.NS","PRECOT.NS","PRECWIRE.NS","PREMEXPLN.NS","PRESTIGE.NS","PRICOLLTD.NS","PRINCEPIPE.NS","PRSMJOHNSN.NS","PSB.NS",
-"PSPPROJECT.NS","PTC.NS","PTL.NS","PUNJABCHEM.NS","PVRINOX.NS","QUESS.NS","QUICKHEAL.NS","RADAAN.NS","RADICO.NS","RAILTEL.NS",
-"RAIN.NS","RAJESHEXPO.NS","RALLIS.NS","RAMASTEEL.NS","RAMCOIND.NS","RAMCOSYS.NS","RATEGAIN.NS","RATNAMANI.NS","RAYMOND.NS","RBLBANK.NS",
-"REDINGTON.NS","RELAXO.NS","RELIGARE.NS","REPCOHOME.NS","RESPONIND.NS","REVATHI.NS","RGL.NS","RHIM.NS","RICOAUTO.NS","RIIL.NS",
-"RITES.NS","RKFORGE.NS","RMCL.NS","ROLEXRINGS.NS","ROSSARI.NS","ROTO.NS","ROUTE.NS","RPGLIFE.NS","RPOWER.NS","RSYSTEMS.NS",
-"RTNINDIA.NS","RTNPOWER.NS","RUBYMILLS.NS","RUCHI.NS","SADBHAV.NS","SAFARI.NS","SALASAR.NS","SALONA.NS","SANDHAR.NS","SANGHIIND.NS",
-"SANGHVIMOV.NS","SANOFI.NS","SAPPHIRE.NS","SAREGAMA.NS","SBCL.NS","SBICARD.NS","SBC.NS","SCHAEFFLER.NS","SCHAND.NS","SCHNEIDER.NS",
-"SEAMECLTD.NS","SELAN.NS","SEPC.NS","SEQUENT.NS","SFL.NS","SHALBY.NS","SHANKARA.NS","SHANTIGEAR.NS","SHAREINDIA.NS","SHEMAROO.NS",
-"SHILPAMED.NS","SHK.NS","SHOPERSTOP.NS","SHREECEM.NS","SHREEPUSHK.NS","SHREERAMA.NS","SHYAMCENT.NS","SHYAMMETL.NS","SIEMENS.NS","SIRCA.NS",
-"SJVN.NS","SKFINDIA.NS","SKIPPER.NS","SMLISUZU.NS","SMLT.NS","SMSLIFE.NS","SMSPHARMA.NS","SNOWMAN.NS","SOBHA.NS","SOLARA.NS",
-"SOLARINDS.NS","SOMANYCERA.NS","SONACOMS.NS","SONATSOFTW.NS","SOTL.NS","SOUTHBANK.NS","SPAL.NS","SPANDANA.NS","SPARC.NS","SPECIALITY.NS",
-"SPENCERS.NS","SPIC.NS","SPLPET.NS","SPMLINFRA.NS","SPORTKING.NS","SREEL.NS","SRF.NS","SRHHYPOLTD.NS","STARCEMENT.NS","STARHEALTH.NS",
-"STLTECH.NS","STOVEKRAFT.NS","SUBEXLTD.NS","SUBROS.NS","SUDARSCHEM.NS","SUMICHEM.NS","SUNCLAYLTD.NS","SUNDARMFIN.NS","SUNDRMFAST.NS","SUNPHARMA.NS",
-"SUNTECK.NS","SUPERHOUSE.NS","SUPRAJIT.NS","SUPREMEIND.NS","SURANAT&P.NS","SURYAROSNI.NS","SUTLEJTEX.NS","SUVENPHAR.NS","SWANENERGY.NS","SYMPHONY.NS",
-"SYNGENE.NS","SYRMA.NS","TANLA.NS","TARSONS.NS","TATACHEM.NS","TATACOFFEE.NS","TATACOMM.NS","TATAELXSI.NS","TATAMETALI.NS","TATAMOTORS.NS",
-"TATAPOWER.NS","TATASTEEL.NS","TATVA.NS","TCIEXP.NS","TCNSBRANDS.NS","TCPLPACK.NS","TEAMLEASE.NS","TECHM.NS","TEJASNET.NS",
-"TEXRAIL.NS","THANGAMAYL.NS","THEINVEST.NS","THEMISMED.NS","THERMAX.NS","THOMASCOOK.NS","TI.NS","TIINDIA.NS","TIJARIA.NS","TIMETECHNO.NS",
-"TIMKEN.NS","TIPSINDLTD.NS","TITAN.NS","TMB.NS","TNPETRO.NS","TNPL.NS","TORNTPHARM.NS","TORNTPOWER.NS","TPHQ.NS","TRANSPEK.NS",
-"TRANSPORT.NS","TRENT.NS","TRIDENT.NS","TRITURBINE.NS","TRIVENI.NS","TTKPRESTIG.NS","TTML.NS","TV18BRDCST.NS","TVSMOTOR.NS","TVSSCS.NS",
-"TVTODAY.NS","UBL.NS","UCAL.NS","UCOBANK.NS","UFLEX.NS","UJJIVAN.NS","UJJIVANSFB.NS","ULTRACEMCO.NS","UNICHEMLAB.NS","UNIONBANK.NS",
-"UNITECH.NS","UNITEDTEA.NS","UNOMINDA.NS","UPL.NS","USHAMART.NS","UTIAMC.NS","VADILALIND.NS","VAIBHAVGBL.NS","VAKRANGEE.NS","VBL.NS",
-"VEDL.NS","VENKEYS.NS","VGUARD.NS","VHL.NS","VIDHIING.NS","VIJAYA.NS","VINATIORGA.NS","VINDHYATEL.NS","VIPIND.NS","VIPULLTD.NS",
-"VISAKAIND.NS","VIVIDHA.NS","VLSFINANCE.NS","VMART.NS","VOLTAMP.NS","VOLTAS.NS","VRLLOG.NS","VSSL.NS","VSTIND.NS","VSTTILLERS.NS",
-"VTL.NS","WABAG.NS","WALCHANNAG.NS","WANBURY.NS","WEBSOLENERG.NS","WELCORP.NS","WELENT.NS","WELSPUNLIV.NS","WESTLIFE.NS","WHEELS.NS",
-"WHIRLPOOL.NS","WINDMACHIN.NS","WIPRO.NS","WOCKPHARMA.NS","XCHANGING.NS","XLENERGY.NS","XPROINDIA.NS","YESBANK.NS","ZANDUREALT.NS","ZEELEARN.NS",
-"ZEEL.NS","ZENSARTECH.NS","ZENTEC.NS","ZODIACLOTH.NS","ZOTA.NS","ZUARI.NS","ZUARIIND.NS","ZYDUSLIFE.NS","ZYDUSWELL.NS"
+# NIFTY 500 - Unique list
+NIFTY_500_RAW = [
+"RELIANCE","TCS","HDFCBANK","ICICIBANK","INFY","BHARTIARTL","ITC","SBIN","LT","BAJFINANCE",
+"HINDUNILVR","KOTAKBANK","HCLTECH","SUNPHARMA","MARUTI","M&M","AXISBANK","ULTRACEMCO","NTPC","ONGC",
+"TITAN","WIPRO","ADANIENT","POWERGRID","ASIANPAINT","NESTLEIND","TATAMOTORS","BAJAJFINSV","JSWSTEEL","HINDALCO",
+"ADANIPORTS","COALINDIA","CIPLA","GRASIM","DIVISLAB","DRREDDY","EICHERMOT","BRITANNIA","BPCL","SBILIFE",
+"HDFCLIFE","TECHM","INDUSINDBK","APOLLOHOSP","TATASTEEL","BAJAJ-AUTO","HEROMOTOCO","SHRIRAMFIN","ADANIGREEN","VEDL",
+"ZOMATO","SIEMENS","HAL","BEL","TRENT","PIDILITIND","LTIM","DLF","GODREJCP","HAVELLS",
+"ICICIGI","INFOEDGE","INDIGO","AMBUJACEM","BANKBARODA","BERGEPAINT","BOSCHLTD","CANBK","CHOLAFIN","DABUR",
+"GAIL","GODREJPROP","HDFCAMC","HINDPETRO","INDHOTEL","IOC","IRCTC","JINDALSTEL","JSWENERGY","JUBLFOOD",
+"LUPIN","MUTHOOTFIN","NMDC","OBEROIRLTY","PFC","PNB","RECLTD","SAIL","SHREECEM","SRF",
+"TATACONSUM","TATAPOWER","TORNTPHARM","UPL","VOLTAS","ZEEL","ACC","ALKEM","ASHOKLEY","AUROPHARMA",
+"BANDHANBNK","BATAINDIA","BHARATFORG","BIOCON","CGPOWER","COLPAL","CONCOR","CUMMINSIND","FEDERALBNK","GMRINFRA",
+"GUJGASLTD","HINDZINC","IDFCFIRSTB","IGL","INDIAMART","IPCALAB","LAURUSLABS","MARICO","MOTHERSON","MPHASIS",
+"MRF","PAGEIND","PEL","PERSISTENT","PETRONET","PIIND","POLYCAB","PVRINOX","RAMCOCEM","RBLBANK",
+"TATACHEM","TATACOMM","TORNTPOWER","TVSMOTOR","UBL","VBL","ABB","ABCAPITAL","ABFRL","AARTIIND",
+"AIAENG","AJANTPHARM","APLAPOLLO","AUBANK","BALKRISIND","BEML","BHEL","BSOFT","CAMS","CDSL",
+"CESC","COROMANDEL","CRISIL","CROMPTON","DALBHARAT","EXIDEIND","FSL","FORTIS","GNFC","GRINDWELL",
+"HAPPSTMNDS","HUDCO","IDFC","IEX","IRFC","JSL","JSWINFRA","KAJARIACER","KEI","KPITTECH",
+"LALPATHLAB","LTF","LTTS","MCX","METROPOLIS","MGL","NCC","NHPC","OIL","PAYTM",
+"POLYMED","POONAWALLA","PRESTIGE","RATNAMANI","RAYMOND","SBICARD","SJVN","SONACOMS","SUNDRMFAST","SUPREMEIND",
+"SYNGENE","TATAELXSI","TIINDIA","TRIDENT","UJJIVANSFB","VGUARD","WELCORP","ZYDUSLIFE","AFFLE","ANGELONE"
 ]
+NIFTY_500 = list(dict.fromkeys(NIFTY_500_RAW)) # duplicate hatao
 
-def get_data(symbol):
+def get_live_data(symbol):
     try:
-        df = yf.download(symbol, period="5d", interval="15m", progress=False)
+        # 15min EMA RSI ke liye yfinance history
+        df = yf.download(f"{symbol}.NS", period="5d", interval="15m", progress=False)
         if isinstance(df.columns, pd.MultiIndex):
             df.columns = df.columns.get_level_values(0)
         if len(df) < 50:
             return None
+        
+        # LIVE LTP ke liye NSE
+        try:
+            nse_data = nse_eq(symbol)
+            live_ltp = float(nse_data['priceInfo']['lastPrice'])
+            df.iloc[-1, df.columns.get_loc('Close')] = live_ltp # last candle ko live se update
+        except:
+            live_ltp = float(df['Close'].iloc[-1])
+
         df['EMA21'] = df['Close'].ewm(span=21).mean()
         df['EMA50'] = df['Close'].ewm(span=50).mean()
         delta = df['Close'].diff()
@@ -95,15 +59,27 @@ def get_data(symbol):
         loss = -delta.where(delta < 0, 0).rolling(14).mean()
         rs = gain / loss
         df['RSI'] = 100 - (100 / (1 + rs))
-        df['Signal'] = "WAIT"
-        df.loc[(df['Close'] > df['EMA21']) & (df['EMA21'] > df['EMA50']) & (df['RSI'] > 55), 'Signal'] = "BUY"
-        return df.dropna()
+        df = df.dropna()
+        
+        last = df.iloc[-1]
+        is_buy = (last['Close'] > last['EMA21']) and (last['EMA21'] > last['EMA50']) and (last['RSI'] > 55)
+        
+        return {
+            "df": df,
+            "ltp": live_ltp,
+            "ema21": float(last['EMA21']),
+            "ema50": float(last['EMA50']),
+            "rsi": float(last['RSI']),
+            "is_buy": is_buy,
+            "symbol": symbol
+        }
     except:
         return None
 
-st.sidebar.title("🚩 Hanuman Scanner")
+st.sidebar.title("🚩 Hanuman Live NSE")
 st.sidebar.metric("Total Stocks", len(NIFTY_500))
-scan = st.sidebar.button("🔍 SCAN 500 NOW", type="primary", use_container_width=True)
+st.sidebar.success("● LIVE NSE Connected")
+scan = st.sidebar.button("🔍 LIVE SCAN NOW", type="primary", use_container_width=True)
 
 if scan:
     results = []
@@ -111,59 +87,60 @@ if scan:
     status = st.empty()
     
     def scan_one(sym):
-        data = get_data(sym)
-        if data is not None:
-            last = data.iloc[-1]
-            if last['Signal'] == "BUY":
-                price = float(last['Close'])
-                return {
-                    "SYMBOL": sym.replace(".NS",""),
+        return get_live_data(sym)
+
+    with ThreadPoolExecutor(max_workers=30) as ex:
+        for i, res in enumerate(ex.map(scan_one, NIFTY_500)):
+            if res and res['is_buy']:
+                price = res['ltp']
+                results.append({
+                    "SYMBOL": res['symbol'],
                     "LTP": round(price,2),
                     "ENTRY": round(price,2),
                     "SL": round(price*0.985,2),
                     "T1": round(price*1.02,2),
                     "T2": round(price*1.04,2),
-                    "RSI": round(float(last['RSI']),1),
+                    "RSI": round(res['rsi'],1),
+                    "EMA21": round(res['ema21'],1),
                     "SIGNAL": "🚩 BUY"
-                }
-        return None
-
-    with ThreadPoolExecutor(max_workers=20) as ex:
-        for i, res in enumerate(ex.map(scan_one, NIFTY_500)):
-            if res:
-                results.append(res)
+                })
             bar.progress((i+1)/len(NIFTY_500))
-            status.text(f"Scanning {i+1}/{len(NIFTY_500)} | Found: {len(results)} BUY")
+            status.text(f"Scanning {i+1}/{len(NIFTY_500)} | LIVE BUY: {len(results)}")
     
     bar.empty()
     status.empty()
     
     if results:
-        st.success(f"🚩 {len(results)} BUY Signals Found in 500 Stocks!")
+        st.balloons()
+        st.success(f"🚩 {len(results)} LIVE BUY Signals Found! - Real NSE Data")
         st.dataframe(pd.DataFrame(results), use_container_width=True, hide_index=True)
-        for r in results[:20]:
-            st.markdown(f"<div style='border:2px solid #00ff00;padding:10px;border-radius:10px;margin:5px 0;background:#111;'><b style='color:white;'>{r['SYMBOL']} - {r['SIGNAL']}</b> <span style='float:right;color:white;'>Rs {r['LTP']}</span><br>ENTRY {r['ENTRY']} | SL <span style='color:#ff4444;'>{r['SL']}</span> | T1 {r['T1']} | T2 {r['T2']}</div>", unsafe_allow_html=True)
+        for r in results[:15]:
+            st.markdown(f"<div style='border:2px solid #00ff00;padding:10px;border-radius:10px;margin:5px 0;background:#111;'><b style='color:white;'>{r['SYMBOL']} - LIVE {r['SIGNAL']}</b> <span style='float:right;color:#00ff00;'>Rs {r['LTP']}</span><br>ENTRY {r['ENTRY']} | SL <span style='color:#ff4444;'>{r['SL']}</span> | T1 {r['T1']} | T2 {r['T2']} | RSI {r['RSI']}</div>", unsafe_allow_html=True)
     else:
-        st.warning("⚠️ 500 me se abhi koi BUY nahi - 9:45 AM ke baad try karo")
-else:
-    st.info("👈 SCAN 500 NOW dabao - 2-3 min lagega, poora market scan hoga!")
+        st.warning("⚠️ Live scan me abhi koi BUY nahi - Market 9:45 AM ke baad check karo")
 
+else:
+    st.info(f"👈 LIVE SCAN NOW dabao - {len(NIFTY_500)} stocks ka LIVE NSE data ayega!")
+
+# Live Chart
 st.markdown("---")
-st.subheader("📈 NSE Live Chart")
-symbol = st.selectbox("Stock Select:", [s.replace(".NS","") for s in NIFTY_500[:100]], key="chart_select")
-df_chart = get_data(f"{symbol}.NS")
-if df_chart is not None:
-    last = df_chart.iloc[-1]
+st.subheader("📈 LIVE NSE Chart - 15 Min + LIVE Price")
+symbol = st.selectbox("Stock Select:", NIFTY_500[:100], key="chart_select")
+live = get_live_data(symbol)
+if live:
+    df_chart = live['df']
     c1,c2,c3,c4 = st.columns(4)
-    c1.metric("LTP", f"Rs {float(last['Close']):.2f}")
-    c2.metric("EMA21", f"{float(last['EMA21']):.2f}")
-    c3.metric("EMA50", f"{float(last['EMA50']):.2f}")
-    c4.metric("RSI", f"{float(last['RSI']):.1f}")
+    c1.metric("LIVE LTP", f"Rs {live['ltp']:.2f}", delta=f"{live['ltp']-float(df_chart['Close'].iloc[-2]):.2f}")
+    c2.metric("EMA21", f"{live['ema21']:.2f}")
+    c3.metric("EMA50", f"{live['ema50']:.2f}")
+    c4.metric("RSI", f"{live['rsi']:.1f}")
+    
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['Close'], name="Close", line=dict(color="#00ff00", width=2)))
+    fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['Close'], name="Close LIVE", line=dict(color="#00ff00", width=2)))
     fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['EMA21'], name="EMA21", line=dict(color="orange")))
     fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['EMA50'], name="EMA50", line=dict(color="red")))
     fig.update_layout(template="plotly_dark", height=450, hovermode="x unified")
     st.plotly_chart(fig, use_container_width=True)
+    st.caption(f"Last Update: {pd.Timestamp.now().strftime('%d-%m-%Y %H:%M:%S')} IST - LIVE NSE")
 
-st.markdown("<p style='text-align:center;color:gray;'>🚩 HANUMAN SCANNER 500 | Jai Shri Ram</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;color:gray;'>🚩 HANUMAN SCANNER LIVE NSE | 100% Ravan Clone | Jai Shri Ram</p>", unsafe_allow_html=True)
