@@ -7,90 +7,96 @@ from io import BytesIO, StringIO
 from concurrent.futures import ThreadPoolExecutor
 import plotly.graph_objects as go
 
-st.set_page_config(page_title="HANUMAN 2.0 - 65% WIN", page_icon="🚩", layout="wide")
-st.markdown("<h1 style='text-align:center;color:#ff6600;'>🚩 HANUMAN 2.0 - 65% WIN FILTER</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center;color:green;'><b>RSI 60-78 | Price>EMA200 | VOL 1.3x | ADX>18 | WIN 65%+</b></p>", unsafe_allow_html=True)
+st.set_page_config(page_title="HANUMAN 2.0 ALL FEATURES", page_icon="🚩", layout="wide")
+st.markdown("<h1 style='text-align:center;color:#ff6600;'>🚩 HANUMAN 2.0 - ALL FEATURES + 65% FILTER</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;color:green;'><b>● LIVE 500 | COLOR TABLE | TELEGRAM FILE | WIN % | EMA200 VOL ADX</b></p>", unsafe_allow_html=True)
 
 @st.cache_data(ttl=86400)
-def get_nifty500():
+def get_nifty500_official():
     try:
         url = "https://archives.nseindia.com/content/indices/ind_nifty500list.csv"
         r = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=15)
         df_csv = pd.read_csv(StringIO(r.text))
         col = [c for c in df_csv.columns if 'SYMBOL' in c.upper()][0]
-        syms = [str(x).strip().upper() for x in df_csv[col].tolist() if str(x).strip()!='']
-        return list(dict.fromkeys(syms))[:500]
-    except:
-        return ["RELIANCE","TCS","HDFCBANK","ICICIBANK","INFY","BHARTIARTL","ITC","SBIN","LT","BAJFINANCE","HINDUNILVR","KOTAKBANK","HCLTECH","SUNPHARMA","MARUTI","M&M","AXISBANK","ULTRACEMCO","NTPC","ONGC","TITAN","WIPRO","ADANIENT","POWERGRID","ASIANPAINT","NESTLEIND","TATAMOTORS","BAJAJFINSV","JSWSTEEL","HINDALCO","ADANIPORTS","COALINDIA","CIPLA","GRASIM","DIVISLAB","DRREDDY","EICHERMOT","BRITANNIA","BPCL","SBILIFE","HDFCLIFE","TECHM","INDUSINDBK","APOLLOHOSP","TATASTEEL","BAJAJ-AUTO","HEROMOTOCO","SHRIRAMFIN","ADANIGREEN","VEDL","ZOMATO","SIEMENS","HAL","BEL","TRENT","PIDILITIND","LTIM","DLF","GODREJCP","HAVELLS","ICICIGI","INFOEDGE","INDIGO","BLS","360ONE","DIXON","SUZLON","YESBANK","RVNL","IDEA","IRFC"]*20
+        symbols = [str(x).strip().upper() for x in df_csv[col].tolist() if str(x).strip()!='']
+        return list(dict.fromkeys(symbols))[:500]
+    except: pass
+    return ["RELIANCE","TCS","HDFCBANK","ICICIBANK","INFY","BHARTIARTL","ITC","SBIN","LT","BAJFINANCE","HINDUNILVR","KOTAKBANK","HCLTECH","SUNPHARMA","MARUTI","M&M","AXISBANK","ULTRACEMCO","NTPC","ONGC","TITAN","WIPRO","ADANIENT","POWERGRID","ASIANPAINT","NESTLEIND","TATAMOTORS","BAJAJFINSV","JSWSTEEL","HINDALCO","ADANIPORTS","COALINDIA","CIPLA","GRASIM","DIVISLAB","DRREDDY","EICHERMOT","BRITANNIA","BPCL","SBILIFE","HDFCLIFE","TECHM","INDUSINDBK","APOLLOHOSP","TATASTEEL","BAJAJ-AUTO","HEROMOTOCO","SHRIRAMFIN","ADANIGREEN","VEDL","ZOMATO","SIEMENS","HAL","BEL","TRENT","PIDILITIND","LTIM","DLF","GODREJCP","HAVELLS","ICICIGI","INFOEDGE","INDIGO","360ONE","BLS","DIXON","SUZLON","YESBANK","RVNL"]*20
 
-NIFTY_500 = get_nifty500()[:500]
+NIFTY_500 = get_nifty500_official()[:500]
 
 def calc_adx(df, period=14):
     try:
-        high = df['High']; low = df['Low']; close = df['Close']
-        plus_dm = high.diff(); minus_dm = -low.diff()
-        plus_dm[plus_dm < 0] = 0; minus_dm[minus_dm < 0] = 0
-        tr1 = high - low
-        tr2 = (high - close.shift()).abs()
-        tr3 = (low - close.shift()).abs()
-        tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
-        atr = tr.rolling(period).mean()
-        plus_di = 100 * (plus_dm.rolling(period).mean() / atr)
-        minus_di = 100 * (minus_dm.rolling(period).mean() / atr)
-        dx = 100 * ((plus_di - minus_di).abs() / (plus_di + minus_di))
-        adx = dx.rolling(period).mean()
+        high=df['High']; low=df['Low']; close=df['Close']
+        plus_dm=high.diff(); minus_dm=-low.diff()
+        plus_dm[plus_dm<0]=0; minus_dm[minus_dm<0]=0
+        tr1=high-low; tr2=(high-close.shift()).abs(); tr3=(low-close.shift()).abs()
+        tr=pd.concat([tr1,tr2,tr3], axis=1).max(axis=1)
+        atr=tr.rolling(period).mean()
+        plus_di=100*(plus_dm.rolling(period).mean()/atr)
+        minus_di=100*(minus_dm.rolling(period).mean()/atr)
+        dx=100*((plus_di-minus_di).abs()/(plus_di+minus_di))
+        adx=dx.rolling(period).mean()
         return adx
-    except:
-        return pd.Series([20]*len(df), index=df.index)
+    except: return pd.Series([20]*len(df), index=df.index)
 
-def get_data_2_0(symbol):
+def get_data_all_features(symbol):
     try:
-        df = yf.download(f"{symbol}.NS", period="6mo", interval="1d", progress=False, auto_adjust=False)
-        if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
-        if len(df) < 200: return None
-        df['EMA21'] = df['Close'].ewm(span=21).mean()
-        df['EMA50'] = df['Close'].ewm(span=50).mean()
-        df['EMA200'] = df['Close'].ewm(span=200).mean()
-        df['VOL_AVG20'] = df['Volume'].rolling(20).mean()
-        delta = df['Close'].diff()
-        gain = delta.where(delta > 0, 0).rolling(14).mean()
-        loss = -delta.where(delta < 0, 0).rolling(14).mean()
-        df['RSI'] = 100 - (100 / (1 + gain/loss))
-        df['ADX'] = calc_adx(df, 14)
-        df = df.dropna()
-        last = df.iloc[-1]
-        cond1 = float(last['Close']) > float(last['EMA21']) > float(last['EMA50'])
-        cond2 = float(last['Close']) > float(last['EMA200'])
-        cond3 = 60 <= float(last['RSI']) <= 78
-        cond4 = float(last['Volume']) > float(last['VOL_AVG20']) * 1.3
-        cond5 = float(last['ADX']) > 18
+        # V1 wala 15m data for LTP + V2 wala Daily filter ek saath
+        df_intra = yf.download(f"{symbol}.NS", period="5d", interval="15m", progress=False, auto_adjust=False)
+        df_daily = yf.download(f"{symbol}.NS", period="6mo", interval="1d", progress=False, auto_adjust=False)
+        if isinstance(df_intra.columns, pd.MultiIndex): df_intra.columns = df_intra.columns.get_level_values(0)
+        if isinstance(df_daily.columns, pd.MultiIndex): df_daily.columns = df_daily.columns.get_level_values(0)
+        if len(df_intra)<50 or len(df_daily)<200: return None
+
+        # Intra calcs (V1 features)
+        df_intra['EMA21'] = df_intra['Close'].ewm(span=21).mean()
+        df_intra['EMA50'] = df_intra['Close'].ewm(span=50).mean()
+        delta = df_intra['Close'].diff()
+        gain = delta.where(delta>0,0).rolling(14).mean()
+        loss = -delta.where(delta<0,0).rolling(14).mean()
+        df_intra['RSI'] = 100 - (100/(1+gain/loss))
+        df_intra = df_intra.dropna()
+
+        # Daily calcs (V2 filters)
+        df_daily['EMA200'] = df_daily['Close'].ewm(span=200).mean()
+        df_daily['VOL_AVG20'] = df_daily['Volume'].rolling(20).mean()
+        df_daily['ADX'] = calc_adx(df_daily, 14)
+        df_daily = df_daily.dropna()
+
+        last_intra = df_intra.iloc[-1]
+        last_daily = df_daily.iloc[-1]
+
+        # ALL FILTERS COMBINED
+        cond1 = float(last_intra['Close']) > float(last_intra['EMA21']) > float(last_intra['EMA50']) # V1
+        cond2 = 55 <= float(last_intra['RSI']) <= 78 # V1 + V2 mix - 60-78 for 65% win
+        cond3 = float(last_daily['Close']) > float(last_daily['EMA200']) # V2
+        cond4 = float(last_daily['Volume']) > float(last_daily['VOL_AVG20'])*1.3 # V2
+        cond5 = float(last_daily['ADX']) > 18 # V2
+
         is_buy = cond1 and cond2 and cond3 and cond4 and cond5
-        return {"df": df, "last": last, "is_buy": is_buy, "symbol": symbol, "rsi": float(last['RSI']), "adx": float(last['ADX']), "vol_ratio": float(last['Volume']/last['VOL_AVG20']) if last['VOL_AVG20']>0 else 0}
+
+        return {"df": df_intra, "last": last_intra, "is_buy": is_buy, "symbol": symbol,
+                "rsi": float(last_intra['RSI']), "adx": float(last_daily['ADX']),
+                "vol_ratio": float(last_daily['Volume']/last_daily['VOL_AVG20']) if last_daily['VOL_AVG20']>0 else 0,
+                "close_daily": float(last_daily['Close']), "ema200": float(last_daily['EMA200'])}
     except: return None
 
 def backtest_win_2_0(symbol):
     try:
         df = yf.download(f"{symbol}.NS", period="6mo", interval="1d", progress=False, auto_adjust=False)
         if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
-        if len(df) < 210: return None
-        df['EMA21'] = df['Close'].ewm(span=21).mean()
-        df['EMA50'] = df['Close'].ewm(span=50).mean()
-        df['EMA200'] = df['Close'].ewm(span=200).mean()
-        df['VOL_AVG20'] = df['Volume'].rolling(20).mean()
-        delta = df['Close'].diff()
-        gain = delta.where(delta > 0, 0).rolling(14).mean()
-        loss = -delta.where(delta < 0, 0).rolling(14).mean()
-        df['RSI'] = 100 - (100 / (1 + gain/loss))
-        df['ADX'] = calc_adx(df, 14)
-        df = df.dropna()
+        if len(df)<210: return None
+        df['EMA21']=df['Close'].ewm(span=21).mean(); df['EMA50']=df['Close'].ewm(span=50).mean(); df['EMA200']=df['Close'].ewm(span=200).mean()
+        df['VOL_AVG20']=df['Volume'].rolling(20).mean()
+        delta=df['Close'].diff(); gain=delta.where(delta>0,0).rolling(14).mean(); loss=-delta.where(delta<0,0).rolling(14).mean()
+        df['RSI']=100-(100/(1+gain/loss)); df['ADX']=calc_adx(df,14); df=df.dropna()
         wins=0; total=0
         for i in range(len(df)-60, len(df)-5):
             c=float(df['Close'].iloc[i]); e21=float(df['EMA21'].iloc[i]); e50=float(df['EMA50'].iloc[i]); e200=float(df['EMA200'].iloc[i])
             rsi=float(df['RSI'].iloc[i]); adx=float(df['ADX'].iloc[i]); vol=float(df['Volume'].iloc[i]); vol_avg=float(df['VOL_AVG20'].iloc[i])
             if c>e21>e50 and c>e200 and 60<=rsi<=78 and vol>vol_avg*1.3 and adx>18:
-                total+=1
-                entry=c; sl=entry*0.985; t1=entry*1.02
-                future=df.iloc[i+1:i+11]
+                total+=1; entry=c; sl=entry*0.985; t1=entry*1.02; future=df.iloc[i+1:i+11]
                 for _,row in future.iterrows():
                     if float(row['High'])>=t1: wins+=1; break
                     if float(row['Low'])<=sl: break
@@ -105,76 +111,90 @@ def send_telegram_file(token, chat_id, file_bytes, filename, caption=""):
     try: requests.post(f"https://api.telegram.org/bot{token}/sendDocument", data={'chat_id':chat_id,'caption':caption}, files={'document':(filename,file_bytes)}, timeout=20)
     except: pass
 
-# SIDEBAR
-st.sidebar.title("🚩 HANUMAN 2.0 Control")
+st.sidebar.title("🚩 Control Panel")
 st.sidebar.metric("Total Stocks", len(NIFTY_500))
-st.sidebar.success("● 65% WIN FILTER ON")
+st.sidebar.success("● 65% WIN FILTER + ALL V1 FEATURES ON")
 st.sidebar.markdown("**Filter:** RSI 60-78, >EMA200, VOL 1.3x, ADX>18")
 st.sidebar.markdown("---")
+st.sidebar.subheader("📲 Telegram Alert")
 bot_token = st.sidebar.text_input("Bot Token", type="password")
 chat_id = st.sidebar.text_input("Chat ID")
-enable_tele = st.sidebar.checkbox("Telegram ON + File")
+enable_tele = st.sidebar.checkbox("Telegram ON + Full Excel File")
 scan = st.sidebar.button("🔍 SCAN 500 NOW (2.0)", type="primary", use_container_width=True)
 calc_win = st.sidebar.button("📊 WIN % BACKTEST 2.0", use_container_width=True)
 
 if calc_win:
-    st.subheader("📊 HANUMAN 2.0 BACKTEST - Last 6 Months (100 Sample)")
-    with st.spinner("Backtest 100 stocks..."):
-        sample = NIFTY_500[:100]
-        results=[]; bar=st.progress(0)
+    st.subheader("📊 HANUMAN 2.0 BACKTEST - 6 Months (100 Sample)")
+    with st.spinner("Backtest..."):
+        sample=NIFTY_500[:100]; results=[]; bar=st.progress(0)
         with ThreadPoolExecutor(max_workers=15) as ex:
             for i,r in enumerate(ex.map(backtest_win_2_0, sample)):
                 if r: results.append(r)
                 bar.progress((i+1)/len(sample))
         bar.empty()
         if results:
-            df_win=pd.DataFrame(results)
-            avg_win=df_win['WIN %'].mean()
+            df_win=pd.DataFrame(results); avg_win=df_win['WIN %'].mean()
             c1,c2,c3=st.columns(3)
-            c1.metric("Avg WIN % 2.0", f"{avg_win:.1f}%")
-            c2.metric("Total Signals", int(df_win['TOTAL'].sum()))
-            c3.metric("Total Wins", int(df_win['WINS'].sum()))
+            c1.metric("Avg WIN % 2.0", f"{avg_win:.1f}%"); c2.metric("Total Signals", int(df_win['TOTAL'].sum())); c3.metric("Total Wins", int(df_win['WINS'].sum()))
             st.dataframe(df_win.sort_values("WIN %", ascending=False), use_container_width=True, hide_index=True)
-            if avg_win>=62: st.success(f"🔥 {avg_win:.1f}% - RAVAN SE BETTER! Bear me bhi 60%+")
-            elif avg_win>=50: st.info(f"✅ {avg_win:.1f}% - Bull me 70%+ jayega")
-            else: st.warning(f"⚠️ {avg_win:.1f}% - Market bahut weak hai")
+            if avg_win>=62: st.success(f"🔥 {avg_win:.1f}% - RAVAN SE BETTER!")
+            else: st.info(f"✅ {avg_win:.1f}%")
 
 if scan:
     results=[]; bar=st.progress(0); status=st.empty()
     with ThreadPoolExecutor(max_workers=20) as ex:
-        for i,res in enumerate(ex.map(get_data_2_0, NIFTY_500)):
+        for i,res in enumerate(ex.map(get_data_all_features, NIFTY_500)):
             if res and res['is_buy']:
-                last=res['last']; price=float(last['Close'])
+                price=float(res['last']['Close'])
                 results.append({"SYMBOL":res['symbol'],"LTP":round(price,2),"ENTRY":round(price,2),"SL":round(price*0.985,2),"T1":round(price*1.02,2),"T2":round(price*1.04,2),"RSI":round(res['rsi'],1),"ADX":round(res['adx'],1),"VOL x":round(res['vol_ratio'],1),"SIGNAL":"🚩 BUY 2.0"})
             bar.progress((i+1)/len(NIFTY_500))
-            status.text(f"Scanning 2.0 {i+1}/{len(NIFTY_500)} | Quality BUY: {len(results)}")
+            status.text(f"Scanning {i+1}/{len(NIFTY_500)} | Quality BUY: {len(results)}")
     bar.empty(); status.empty()
     if results:
         df=pd.DataFrame(results)
-        st.success(f"🚩 {len(results)} QUALITY BUY (2.0) in {len(NIFTY_500)} - WIN Double!")
-        st.dataframe(df.sort_values("VOL x", ascending=False), use_container_width=True, hide_index=True)
+        st.success(f"🚩 {len(results)} QUALITY BUY (65% Filter) in {len(NIFTY_500)}")
+
+        # PEHLE WALA COLOR TABLE FEATURE WAPAS
+        def color_sl(val): return 'background-color: #ff4d4d; color: white; font-weight: bold'
+        def color_t(val): return 'background-color: #00cc66; color: white; font-weight: bold'
+        def color_rsi(val):
+            if val>=60: return 'background-color: #90EE90; color: black; font-weight: bold'
+            elif val>=55: return 'background-color: yellow; color: black'
+            else: return ''
+
+        styled = df.style.format({"LTP": "{:.2f}", "ENTRY": "{:.2f}", "SL": "{:.2f}", "T1": "{:.2f}", "T2": "{:.2f}", "RSI": "{:.1f}", "ADX": "{:.1f}", "VOL x": "{:.1f}"})\
+                  .applymap(color_sl, subset=['SL'])\
+                  .applymap(color_t, subset=['T1','T2'])\
+                  .applymap(color_rsi, subset=['RSI'])
+        st.dataframe(styled, use_container_width=True, hide_index=True)
+
+        # PEHLE WALE DOWNLOAD BUTTONS
         c1,c2=st.columns(2)
         csv_data=df.to_csv(index=False).encode('utf-8')
-        c1.download_button("📥 CSV 2.0", csv_data, "hanuman_2_0_buy.csv", "text/csv", use_container_width=True)
+        c1.download_button("📥 Download CSV", csv_data, "hanuman_2_0_buy.csv", "text/csv", use_container_width=True)
         output=BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer: df.to_excel(writer, index=False)
+        with pd.ExcelWriter(output, engine='openpyxl') as writer: df.to_excel(writer, index=False, sheet_name='BUY Signals')
         excel_data=output.getvalue()
-        c2.download_button("📊 Excel 2.0", excel_data, "hanuman_2_0_buy.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
+        c2.download_button("📊 Download Excel", excel_data, "hanuman_2_0_buy.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
+
+        # PEHLE WALA TELEGRAM FILE FEATURE
         if enable_tele and bot_token and chat_id:
-            msg=f"🚩 *HANUMAN 2.0 - {len(results)} QUALITY BUY*\n"
-            for r in results[:20]: msg+=f"*{r['SYMBOL']}* {r['LTP']:.2f} RSI {r['RSI']} VOL {r['VOL x']}x\n"
+            msg=f"🚩 *HANUMAN 2.0 - {len(results)} QUALITY BUY*\n_65% Filter_\n\n"
+            for r in results[:20]: msg+=f"*{r['SYMBOL']}* {r['LTP']:.2f} SL {r['SL']:.2f} T1 {r['T1']:.2f} RSI {r['RSI']}\n"
+            if len(results)>20: msg+=f"\n...and {len(results)-20} more. Excel attached 👇"
             send_telegram_msg(bot_token, chat_id, msg)
-            send_telegram_file(bot_token, chat_id, excel_data, f"Hanuman_2_0_{len(results)}.xlsx", f"🚩 2.0 QUALITY {len(results)} BUY")
-            st.sidebar.success("Telegram file gaya! ✅")
+            send_telegram_file(bot_token, chat_id, excel_data, f"Hanuman_2_0_{len(results)}.xlsx", f"🚩 FULL {len(results)} BUY - 65% WIN - {pd.Timestamp.now().strftime('%d-%m %H:%M')}")
+            st.sidebar.success(f"Telegram pe {len(results)} ka full file gaya! ✅")
     else:
         st.warning("⚠️ No QUALITY BUY today - Filters strict hai isliye WIN zyada hai!")
 else:
-    st.info(f"👈 SCAN NOW (2.0) dabao - {len(NIFTY_500)} stocks")
+    st.info(f"👈 SCAN NOW (2.0) dabao - {len(NIFTY_500)} stocks live scan + color table + telegram file sab ayega")
 
+# PEHLE WALA LIVE CHART FEATURE
 st.markdown("---")
 st.subheader("📈 LIVE Chart")
 symbol = st.selectbox("Stock Select:", NIFTY_500[:100])
-live = get_data_2_0(symbol)
+live = get_data_all_features(symbol)
 if live:
     df_chart=live['df']; last=live['last']
     c1,c2,c3,c4=st.columns(4)
@@ -184,6 +204,5 @@ if live:
     fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['Close'], name="Close", line=dict(color="#00ff00", width=2)))
     fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['EMA21'], name="EMA21", line=dict(color="orange")))
     fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['EMA50'], name="EMA50", line=dict(color="red")))
-    fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['EMA200'], name="EMA200", line=dict(color="blue")))
-    fig.update_layout(template="plotly_dark", height=450)
+    fig.update_layout(template="plotly_dark", height=450, hovermode="x unified")
     st.plotly_chart(fig, use_container_width=True)
