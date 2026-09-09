@@ -5,6 +5,15 @@ import plotly.graph_objects as go
 from concurrent.futures import ThreadPoolExecutor
 
 st.set_page_config(page_title="HANUMAN SCANNER LIVE", page_icon="🚩", layout="wide")
+
+# === YE 2 LINE SAB TOOLBAR HATA DEGI ===
+st.markdown("""
+<style>
+[data-testid="stElementToolbar"] {display: none !important;}
+.stActionButton {display: none !important;}
+</style>
+""", unsafe_allow_html=True)
+
 st.markdown("<h1 style='text-align:center;color:#ff6600;'>🚩 HANUMAN SCANNER - LIVE NSE</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center;color:green;'><b>● LIVE NSE DATA | 100% Ravan Clone</b></p>", unsafe_allow_html=True)
 
@@ -21,7 +30,18 @@ NIFTY_500 = [
 "TATACONSUM","TATAPOWER","TORNTPHARM","UPL","VOLTAS","ZEEL","ACC","ALKEM","ASHOKLEY","AUROPHARMA",
 "BANDHANBNK","BATAINDIA","BHARATFORG","BIOCON","CGPOWER","COLPAL","CONCOR","CUMMINSIND","FEDERALBNK","GMRINFRA",
 "GUJGASLTD","HINDZINC","IDFCFIRSTB","IGL","INDIAMART","IPCALAB","LAURUSLABS","MARICO","MOTHERSON","MPHASIS",
-"MRF","PAGEIND","PEL","PERSISTENT","PETRONET","PIIND","POLYCAB","PVRINOX","RAMCOCEM","RBLBANK"
+"MRF","PAGEIND","PEL","PERSISTENT","PETRONET","PIIND","POLYCAB","PVRINOX","RAMCOCEM","RBLBANK",
+"TATACHEM","TATACOMM","TORNTPOWER","TVSMOTOR","UBL","VBL","ABB","ABCAPITAL","ABFRL","AARTIIND",
+"AIAENG","AJANTPHARM","APLAPOLLO","AUBANK","BALKRISIND","BEML","BHEL","BSOFT","CAMS","CDSL",
+"CESC","COROMANDEL","CRISIL","CROMPTON","DALBHARAT","EXIDEIND","FSL","FORTIS","GNFC","GRINDWELL",
+"HAPPSTMNDS","HUDCO","IDFC","IEX","IRFC","JSL","JSWINFRA","KAJARIACER","KEI","KPITTECH",
+"LALPATHLAB","LTF","LTTS","MCX","METROPOLIS","MGL","NCC","NHPC","OIL","PAYTM",
+"POLYMED","POONAWALLA","PRESTIGE","RATNAMANI","RAYMOND","SBICARD","SJVN","SONACOMS","SUNDRMFAST","SUPREMEIND",
+"SYNGENE","TATAELXSI","TIINDIA","TRIDENT","UJJIVANSFB","VGUARD","WELCORP","ZYDUSLIFE","AFFLE","ANGELONE",
+"ASTERDM","ATUL","BDL","BLUESTARCO","CENTRALBK","COFORGE","DELHIVERY","EIHOTEL","ELGIEQUIP","GICRE",
+"GLAXO","GSPL","HBLPOWER","IDBI","IIFL","IRB","JBCHEPHARM","JKCEMENT","KARURVYSYA","KIMS",
+"MASTEK","MAZDOCK","MOTILALOFS","NYKAA","OLECTRA","PATANJALI","PNBHOUSING","RADICO","RITES","SOBHA",
+"SOLARINDS","STARHEALTH","SUVENPHAR","TANLA","TEAMLEASE","UCOBANK","UNIONBANK","VAIBHAVGBL","WELSPUNLIV","ZYDUSWELL"
 ]
 NIFTY_500 = list(dict.fromkeys(NIFTY_500))
 
@@ -82,7 +102,6 @@ if scan:
         st.dataframe(pd.DataFrame(results), use_container_width=True, hide_index=True)
     else:
         st.warning("⚠️ Abhi koi BUY nahi")
-
 else:
     st.info(f"👈 SCAN NOW dabao - {len(NIFTY_500)} stocks LIVE scan hoga!")
 
@@ -103,5 +122,4 @@ if live:
     fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['EMA21'], name="EMA21", line=dict(color="orange")))
     fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['EMA50'], name="EMA50", line=dict(color="red")))
     fig.update_layout(template="plotly_dark", height=450, hovermode="x unified")
-    # TOOLBAR HATANE WALI LINE
     st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'displaylogo': False})
