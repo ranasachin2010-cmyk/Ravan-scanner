@@ -135,7 +135,6 @@ if scan:
     bar.empty()
     status.empty()
     if results:
-        st.balloons()
         st.success(f"🚩 {len(results)} BUY Signals Found in {len(NIFTY_500)} Stocks!")
         st.dataframe(pd.DataFrame(results), use_container_width=True, hide_index=True)
     else:
