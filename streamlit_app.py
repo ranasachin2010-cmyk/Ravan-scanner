@@ -3,12 +3,11 @@ import yfinance as yf
 import pandas as pd
 import plotly.graph_objects as go
 from concurrent.futures import ThreadPoolExecutor
-from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(page_title="HANUMAN SCANNER 500 LIVE", page_icon="🚩", layout="wide")
 
-# HAR 5 MINUTE AUTO REFRESH - RAVAN WALA FEATURE
-st_autorefresh(interval=5 * 60 * 1000, key="ravan_autorefresh")
+# AUTO REFRESH HAR 5 MINUTE ME - BINA KISI LIBRARY KE
+st.markdown('<meta http-equiv="refresh" content="300">', unsafe_allow_html=True)
 
 # SAB ICON HATANE KA JADU
 st.markdown("""
@@ -22,6 +21,7 @@ header {visibility: hidden;}
 st.markdown("<h1 style='text-align:center;color:#ff6600;'>🚩 HANUMAN SCANNER - LIVE NSE 500</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center;color:green;'><b>● LIVE NSE DATA | NIFTY 500 | AUTO REFRESH 5 MIN</b></p>", unsafe_allow_html=True)
 
+# NIFTY 500 PURA LIST
 NIFTY_500 = [
 "RELIANCE","TCS","HDFCBANK","ICICIBANK","INFY","BHARTIARTL","ITC","SBIN","LT","BAJFINANCE",
 "HINDUNILVR","KOTAKBANK","HCLTECH","SUNPHARMA","MARUTI","M&M","AXISBANK","ULTRACEMCO","NTPC","ONGC",
@@ -47,49 +47,29 @@ NIFTY_500 = [
 "GLAXO","GSPL","HBLPOWER","IDBI","IIFL","IRB","JBCHEPHARM","JKCEMENT","KARURVYSYA","KIMS",
 "MASTEK","MAZDOCK","MOTILALOFS","NYKAA","OLECTRA","PATANJALI","PNBHOUSING","RADICO","RITES","SOBHA",
 "SOLARINDS","STARHEALTH","SUVENPHAR","TANLA","TEAMLEASE","UCOBANK","UNIONBANK","VAIBHAVGBL","WELSPUNLIV","ZYDUSWELL",
-"AARTIPHARM","ABSLAMC","AEGISCHEM","AKZOINDIA","ALKYLAMINE","AMBER","ANURAS","APLLTD","ASAHIINDIA","ASTRAL",
-"AVANTIFEED","BAJAJELEC","BALMLAWRIE","BAYERCROP","BECTORFOOD","BFUTILITIE","BHARATRAS","BIRLACABLE","BLUEDART","BORORENEW",
-"BRIGADE","BSE","CCL","CENTURYPLY","CHALET","CHEMPLASTS","CIGNITEC","CYIENT","DCBBANK","DCMSHRIRAM",
-"DEEPAKFERT","DHANUKA","DODLA","DYNAMATECH","EIDPARRY","ELECON","EQUITASBNK","ERIS","ESABINDIA","ETHOS",
-"FCL","FIEMIND","FINCABLES","FINEORG","FIVESTAR","FLUOROCHEM","GAEL","GARFIBRES","GESHIP","GHCL",
-"GLS","GMMPFAUDLR","GNA","GOCLCORP","GOCOLORS","GODREJAGRO","GPIL","GPPL","GRANULES","GRAPHITE",
-"GRAVITA","HARSHA","HCC","HCG","HEIDELBERG","HFCL","HGINFRA","HIKAL","HINDOILEXP","HOMEFIRST",
-"HSCL","ICRA","IOLCP","IRCON","ITDC","JAYBARMARU","JBMA","JCHAC","JINDALPOLY","JKLAKSHMI",
-"JPPOWER","JSWHL","JTEKTINDIA","JTLIND","KABRAEXTRU","KALPATPOWR","KANSAINER","KESORAMIND","KIRLOSENG","KNRCON",
-"KTKBANK","LAKSHMIMACH","LEMONTREE","LGBBROSLTD","LINDEINDIA","LLOYDSME","LUMAXTECH","MAHABANK","MAHLOG","MANINFRA",
-"MANGCHEFER","MARKSANS","MAXHEALTH","MAYURUNIQ","MMTC","MOIL","MOLDTECH","MONTECARLO","MOREPENLAB","MTARTECH",
-"NATCOPHARM","NDL","NEOGEN","NESCO","NFL","NILKAMAL","NIPPOBATRY","NOCIL","NRBBEARING","NUCLEUS",
-"OBEROIRLTY","OMAXE","ONMOBILE","ONWARDTEC","ORIENTCEM","ORIENTELEC","ORIENTHOT","PACL","PALREDTEC","PANAMAPET",
-"PARACABLES","PARKHOTELS","PCJEWELLER","PDSL","PENIND","PFOCUS","PGEL","PGHL","PHOENIXLTD","PILANIINVS",
-"PITTIENG","PNBGILTS","PNCINFRA","POLYPLEX","PONNIERODE","POWERMECH","PPAP","PRAKASH","PRECOT","PRECWIRE",
-"PREMEXPLN","PRICOLLTD","PRINCEPIPE","PRSMJOHNSN","PSB","PSPPROJECT","PTC","PTL","PUNJABCHEM","QUESS",
-"QUICKHEAL","RADAAN","RAILTEL","RAIN","RAJESHEXPO","RALLIS","RAMASTEEL","RAMCOIND","RAMCOSYS","RATEGAIN",
-"RBLBANK","REDINGTON","RELAXO","RELIGARE","REPCOHOME","RESPONIND","RGL","RHIM","RICOAUTO","RKFORGE",
-"ROLEXRINGS","ROSSARI","ROTO","ROUTE","RPGLIFE","RPOWER","RSYSTEMS","RTNINDIA","SADBHAV","SAFARI",
-"SALASAR","SANDHAR","SANGHIIND","SANGHVIMOV","SANOFI","SAPPHIRE","SAREGAMA","SBCL","SCHAEFFLER","SCHAND",
-"SCHNEIDER","SEAMECLTD","SELAN","SEPC","SEQUENT","SFL","SHALBY","SHANKARA","SHANTIGEAR","SHAREINDIA",
-"SHEMAROO","SHILPAMED","SHK","SHOPERSTOP","SHYAMCENT","SHYAMMETL","SIEMENS","SIRCA","SKFINDIA","SKIPPER",
-"SMLISUZU","SMLT","SMSLIFE","SMSPHARMA","SNOWMAN","SOLARA","SOMANYCERA","SONATSOFTW","SOTL","SOUTHBANK",
-"SPAL","SPANDANA","SPARC","SPECIALITY","SPENCERS","SPIC","SPLPET","SPMLINFRA","SPORTKING","SRF",
-"STARCEMENT","STLTECH","STOVEKRAFT","SUBEXLTD","SUBROS","SUDARSCHEM","SUMICHEM","SUNCLAYLTD","SUNDARMFIN","SUNTECK",
-"SUPERHOUSE","SUPRAJIT","SURANAT&P","SURYAROSNI","SUTLEJTEX","SYMPHONY","TANLA","TARSONS","TATACOFFEE","TATAMETALI",
-"TCIEXP","TCNSBRANDS","TCPLPACK","TECHM","TEJASNET","TEXRAIL","THANGAMAYL","THERMAX","THOMASCOOK","TI",
-"TIMETECHNO","TIMKEN","TIPSINDLTD","TMB","TNPETRO","TNPL","TORNTPOWER","TPHQ","TRANSPEK","TRENT",
-"TTKPRESTIG","TTML","TV18BRDCST","TVSMOTOR","TVSSCS","TVTODAY","UCAL","UFLEX","UJJIVAN","ULTRACEMCO",
-"UNICHEMLAB","UNITECH","UNITEDTEA","UNOMINDA","USHAMART","UTIAMC","VADILALIND","VAKRANGEE","VENKEYS","VHL",
-"VIDHIING","VIJAYA","VINATIORGA","VINDHYATEL","VIPIND","VIPULLTD","VISAKAIND","VLSFINANCE","VMART","VOLTAMP",
-"VOLTAS","VRLLOG","VSSL","VSTIND","VSTTILLERS","VTL","WABAG","WALCHANNAG","WANBURY","WEBSOLENERG",
-"WELENT","WESTLIFE","WHEELS","WHIRLPOOL","WINDMACHIN","WOCKPHARMA","XCHANGING","XLENERGY","XPROINDIA","YESBANK",
-"ZANDUREALT","ZEELEARN","ZEEL","ZENSARTECH","ZENTEC","ZODIACLOTH","ZOTA","ZUARI","ZUARIIND","ZYDUSLIFE"
+"BAJAJELEC","BALMLAWRIE","BAYERCROP","BBTC","BEML","BHEL","BLUEDART","BSOFT","CAMS","CDSL",
+"CEATLTD","CENTRALBK","CHAMBLFERT","CHOLAHLDNG","CROMPTON","CUB","DEEPAKNTR","DELHIVERY","EIDPARRY","ENDURANCE",
+"ESCORTS","FEDERALBNK","FSL","GICRE","GODREJIND","GRANULES","GSFC","GUJGASLTD","HAPPSTMNDS","HINDCOPPER",
+"IDFCFIRSTB","IEX","IIFL","INDIAMART","INDIGO","IPCALAB","IRB","IRCTC","JINDALSTEL","JKCEMENT",
+"JKLAKSHMI","JUBLFOOD","JUSTDIAL","JYOTHYLAB","KAJARIACER","KEI","KPITTECH","LALPATHLAB","LAURUSLABS","LTTS",
+"MAZDOCK","MCX","METROPOLIS","MGL","MPHASIS","MUTHOOTFIN","NAM-INDIA","NATIONALUM","NAUKRI","NAVINFLUOR",
+"NBCC","NCC","NHPC","NLCINDIA","NMDC","NTPCGREEN","OIL","PAYTM","PERSISTENT","PETRONET",
+"PFIZER","PHOENIXLTD","PIDILITIND","PIIND","PNB","PNBHOUSING","POLYCAB","POWERGRID","PRESTIGE","PVRINOX",
+"RAMCOCEM","RBLBANK","RECLTD","RELAXO","SAIL","SBICARD","SBILIFE","SHREECEM","SJVN","SONACOMS",
+"SRF","STARHEALTH","SUNDRMFAST","SUPREMEIND","TATACHEM","TATACOMM","TATAPOWER","TORNTPHARM","TORNTPOWER","TRENT",
+"TVSMOTOR","UBL","UJJIVANSFB","VBL","VGUARD","VOLTAS","WELCORP","ZYDUSLIFE"
 ]
-NIFTY_500 = list(dict.fromkeys(NIFTY_500))[:500]
+
+NIFTY_500 = list(dict.fromkeys(NIFTY_500))
+NIFTY_500 = NIFTY_500[:500]
 
 def get_data(symbol):
     try:
         df = yf.download(f"{symbol}.NS", period="5d", interval="15m", progress=False, auto_adjust=False)
         if isinstance(df.columns, pd.MultiIndex):
             df.columns = df.columns.get_level_values(0)
-        if len(df) < 50: return None
+        if len(df) < 50:
+            return None
         df['EMA21'] = df['Close'].ewm(span=21).mean()
         df['EMA50'] = df['Close'].ewm(span=50).mean()
         delta = df['Close'].diff()
@@ -101,7 +81,8 @@ def get_data(symbol):
         last = df.iloc[-1]
         is_buy = (float(last['Close']) > float(last['EMA21'])) and (float(last['EMA21']) > float(last['EMA50'])) and (float(last['RSI']) > 55)
         return {"df": df, "last": last, "is_buy": is_buy, "symbol": symbol}
-    except: return None
+    except:
+        return None
 
 st.sidebar.title("🚩 Hanuman Scanner")
 st.sidebar.metric("Total Stocks", len(NIFTY_500))
@@ -112,31 +93,47 @@ if scan:
     results = []
     bar = st.progress(0)
     status = st.empty()
-    def scan_one(sym): return get_data(sym)
+    def scan_one(sym):
+        return get_data(sym)
     with ThreadPoolExecutor(max_workers=30) as ex:
         for i, res in enumerate(ex.map(scan_one, NIFTY_500)):
             if res and res['is_buy']:
-                last = res['last']; price = float(last['Close'])
-                results.append({"SYMBOL": res['symbol'],"LTP": round(price,2),"ENTRY": round(price,2),"SL": round(price*0.985,2),"T1": round(price*1.02,2),"T2": round(price*1.04,2),"RSI": round(float(last['RSI']),1),"SIGNAL": "🚩 BUY"})
+                last = res['last']
+                price = float(last['Close'])
+                results.append({
+                    "SYMBOL": res['symbol'],
+                    "LTP": round(price,2),
+                    "ENTRY": round(price,2),
+                    "SL": round(price*0.985,2),
+                    "T1": round(price*1.02,2),
+                    "T2": round(price*1.04,2),
+                    "RSI": round(float(last['RSI']),1),
+                    "SIGNAL": "🚩 BUY"
+                })
             bar.progress((i+1)/len(NIFTY_500))
             status.text(f"Scanning {i+1}/{len(NIFTY_500)} | BUY: {len(results)}")
-    bar.empty(); status.empty()
+    bar.empty()
+    status.empty()
     if results:
         st.success(f"🚩 {len(results)} BUY Signals Found in {len(NIFTY_500)} Stocks!")
         st.dataframe(pd.DataFrame(results), use_container_width=True, hide_index=True)
-    else: st.warning("⚠️ Abhi koi BUY nahi")
+    else:
+        st.warning("⚠️ Abhi koi BUY nahi")
 else:
-    st.info(f"👈 SCAN NOW dabao - {len(NIFTY_500)} stocks LIVE | Har 5 min auto refresh hoga")
+    st.info(f"👈 SCAN NOW dabao - {len(NIFTY_500)} stocks ka LIVE scan hoga! Auto Refresh 5 min ON hai")
 
 st.markdown("---")
 st.subheader("📈 LIVE Chart")
 symbol = st.selectbox("Stock Select:", NIFTY_500[:100], key="chart_select")
 live = get_data(symbol)
 if live:
-    df_chart = live['df']; last = live['last']
+    df_chart = live['df']
+    last = live['last']
     c1,c2,c3,c4 = st.columns(4)
-    c1.metric("LTP", f"Rs {float(last['Close']):.2f}"); c2.metric("EMA21", f"{float(last['EMA21']):.2f}")
-    c3.metric("EMA50", f"{float(last['EMA50']):.2f}"); c4.metric("RSI", f"{float(last['RSI']):.1f}")
+    c1.metric("LTP", f"Rs {float(last['Close']):.2f}")
+    c2.metric("EMA21", f"{float(last['EMA21']):.2f}")
+    c3.metric("EMA50", f"{float(last['EMA50']):.2f}")
+    c4.metric("RSI", f"{float(last['RSI']):.1f}")
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['Close'], name="Close", line=dict(color="#00ff00", width=2)))
     fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['EMA21'], name="EMA21", line=dict(color="orange")))
