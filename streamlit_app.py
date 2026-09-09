@@ -1,12 +1,11 @@
 import streamlit as st
 import yfinance as yf
 import pandas as pd
-import numpy as np
 
 st.set_page_config(page_title="RAVAN 2.0", page_icon="👺", layout="wide")
 
 st.markdown("<h1 style='text-align:center;color:#ff3300;'>👺 RAVAN 2.0 - LIVE SCANNER</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center;color:gray;'>EMA 21 | RSI 55 | EMA50 Crossover - 9:45 AM Setup</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;color:gray;'>EMA 21 | RSI 55 | EMA50 - 9:45 AM Setup</p>", unsafe_allow_html=True)
 
 def get_data(symbol):
     try:
@@ -28,15 +27,11 @@ def get_data(symbol):
     except:
         return None
 
-# Sidebar
 st.sidebar.title("Ravan Scanner")
 scan = st.sidebar.button("🔍 SCAN NOW", type="primary", use_container_width=True)
-st.sidebar.markdown("---")
-st.sidebar.write("Nifty 50 Stocks:")
 
 STOCKS = ["RELIANCE.NS","TCS.NS","INFY.NS","HDFCBANK.NS","ICICIBANK.NS","SBIN.NS","SUNDRMFAST.NS","TATAMOTORS.NS","WIPRO.NS","BHARTIARTL.NS"]
 
-# Scanner Section
 if scan:
     results = []
     bar = st.progress(0)
@@ -57,37 +52,3 @@ if scan:
                     "SIGNAL": "🔥 BUY"
                 })
         bar.progress((i+1)/len(STOCKS))
-    bar.empty()
-    
-    if results:
-        df = pd.DataFrame(results)
-        st.success(f"🔥 {len(results)} BUY Signals Found!")
-        st.dataframe(df, use_container_width=True, hide_index=True)
-        for r in results:
-            st.markdown(f"""
-            <div style='border:2px solid #00ff00;padding:12px;border-radius:10px;margin:8px 0;background:#111;'>
-            <b style='color:white;font-size:18px;'>{r['SYMBOL']} - {r['SIGNAL']}</b> 
-            <span style='float:right;color:white;'>LTP Rs {r['LTP']}</span><br>
-            ENTRY Rs {r['ENTRY']} | SL <span style='color:#ff4444;'>Rs {r['SL']}</span> | T1 <span style='color:#00ff00;'>Rs {r['T1']}</span> | T2 <span style='color:gold;'>Rs {r['T2']}</span><br>
-            RSI {r['RSI']} | EMA 21 > 50 CONFIRMED
-            </div>
-            """, unsafe_allow_html=True)
-    else:
-        st.warning("⚠️ Abhi koi fresh BUY signal nahi hai - Market 9:45 AM ke baad scan karo")
-else:
-    st.info("👈 Left se SCAN NOW dabao - Scanner chalega")
-
-# Chart Section - NSE Only - No Apple
-st.markdown("---")
-st.subheader("📈 NSE Live Chart")
-col1, col2 = st.columns([1,3])
-with col1:
-    symbol = st.selectbox("Stock Select Karo:", ["RELIANCE","TCS","INFY","HDFCBANK","ICICIBANK","SBIN","SUNDRMFAST","TATAMOTORS","BHARTIARTL","WIPRO"])
-with col2:
-    st.write(f"Showing: NSE:{symbol} - 15 Min")
-
-# TradingView NSE Chart Only
-tv_url = f"https://s.tradingview.com/widgetembed/?symbol=NSE%3A{symbol}&interval=15&hidesidetoolbar=0&symboledit=1&saveimage=0&toolbarbg=f1f3f6"
-st.components.v1.iframe(tv_url, height=550, scrolling=False)
-
-st.markdown("<p style='text-align:center;color:gray;margin-top:30px;'>Made with ❤️ RAVAN 2.0 Clone | Educational Purpose Only</p>", unsafe_allow_html=True)
