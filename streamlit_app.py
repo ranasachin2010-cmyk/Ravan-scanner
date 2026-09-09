@@ -1,9 +1,9 @@
 import streamlit as st
 import yfinance as yf
 import pandas as pd
+import plotly.graph_objects as go
 
 st.set_page_config(page_title="RAVAN 2.0", page_icon="👺", layout="wide")
-
 st.markdown("<h1 style='text-align:center;color:#ff3300;'>👺 RAVAN 2.0 - LIVE SCANNER</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center;color:gray;'>EMA 21 | RSI 55 | EMA50 - 9:45 AM Setup</p>", unsafe_allow_html=True)
 
@@ -23,7 +23,7 @@ def get_data(symbol):
         df['RSI'] = 100 - (100 / (1 + rs))
         df['Signal'] = "WAIT"
         df.loc[(df['Close'] > df['EMA21']) & (df['EMA21'] > df['EMA50']) & (df['RSI'] > 55), 'Signal'] = "BUY"
-        return df
+        return df.dropna()
     except:
         return None
 
@@ -56,37 +56,45 @@ if scan:
     if results:
         st.success(f"🔥 {len(results)} BUY Signals Found!")
         st.dataframe(pd.DataFrame(results), use_container_width=True, hide_index=True)
-        for r in results:
-            st.markdown(f"<div style='border:2px solid #00ff00;padding:12px;border-radius:10px;margin:8px 0;background:#111;'><b style='color:white;'>{r['SYMBOL']} - {r['SIGNAL']}</b> <span style='float:right;color:white;'>Rs {r['LTP']}</span><br>ENTRY Rs {r['ENTRY']} | SL <span style='color:#ff4444;'>Rs {r['SL']}</span> | T1 Rs {r['T1']} | T2 Rs {r['T2']}</div>", unsafe_allow_html=True)
     else:
         st.warning("⚠️ Abhi koi fresh BUY signal nahi - 9:45 AM ke baad scan karo")
 
-# --- NEW 100% NSE CHART - NO APPLE, NO TRADINGVIEW ---
+# --- PERFECT CHART - FIXED SCALE ---
 st.markdown("---")
 st.subheader("📈 NSE Live Chart - 15 Min")
 
 symbol = st.selectbox("Stock Select Karo:", ["RELIANCE","TCS","INFY","HDFCBANK","ICICIBANK","SBIN","SUNDRMFAST","TATAMOTORS","BHARTIARTL","WIPRO"], key="chart_select")
-
-st.caption(f"Showing: NSE:{symbol} | Live from NSE (yfinance) | No Apple Bug")
+st.caption(f"Showing: NSE:{symbol} | 100% NSE Data | No Apple Bug")
 
 df_chart = get_data(f"{symbol}.NS")
 
 if df_chart is not None:
-    col1, col2, col3, col4 = st.columns(4)
     last = df_chart.iloc[-1]
-    col1.metric("LTP", f"Rs {float(last['Close']):.2f}")
-    col2.metric("EMA21", f"{float(last['EMA21']):.2f}")
-    col3.metric("EMA50", f"{float(last['EMA50']):.2f}")
-    col4.metric("RSI", f"{float(last['RSI']):.1f}")
+    c1,c2,c3,c4 = st.columns(4)
+    c1.metric("LTP", f"Rs {float(last['Close']):.2f}")
+    c2.metric("EMA21", f"{float(last['EMA21']):.2f}")
+    c3.metric("EMA50", f"{float(last['EMA50']):.2f}")
+    c4.metric("RSI", f"{float(last['RSI']):.1f}")
 
-    # Chart with EMA
-    chart_df = df_chart[['Close','EMA21','EMA50']].tail(100)
-    st.line_chart(chart_df, height=400)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['Close'], name="Close", line=dict(color="#00ff00", width=2)))
+    fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['EMA21'], name="EMA21", line=dict(color="orange", width=1.5)))
+    fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['EMA50'], name="EMA50", line=dict(color="#ff3300", width=1.5)))
     
-    # Candle data table
-    with st.expander("📊 Last 5 Candles Data"):
+    fig.update_layout(
+        template="plotly_dark",
+        height=500,
+        xaxis_title="Time",
+        yaxis_title="Price (Rs)",
+        hovermode="x unified",
+        margin=dict(l=10,r=10,t=10,b=10)
+    )
+    st.plotly_chart(fig, use_container_width=True)
+    
+    with st.expander("📊 Last 5 Candles"):
         st.dataframe(df_chart[['Close','EMA21','EMA50','RSI','Signal']].tail(5).sort_index(ascending=False), use_container_width=True)
 else:
-    st.error("Data load nahi hua - thodi der baad try karo")
+    st.error("Data load nahi hua")
 
-st.markdown("<p style='text-align:center;color:gray;margin-top:30px;'>Made with ❤️ RAVAN 2.0 | 100% NSE Data | Educational Only</p>", unsafe_allow_html=True)
+# Requirements ke liye
+st.markdown("<p style='text-align:center;color:gray;margin-top:30px;'>RAVAN 2.0 | 100% NSE Data</p>", unsafe_allow_html=True)
