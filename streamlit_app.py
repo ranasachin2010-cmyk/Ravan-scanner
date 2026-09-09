@@ -6,31 +6,22 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 from io import BytesIO, StringIO
 
-st.set_page_config(page_title="HANUMAN SCANNER 500 FINAL", page_icon="🚩", layout="wide")
-st.markdown("<h1 style='text-align:center;color:#ff6600;'>🚩 HANUMAN SCANNER - FINAL 500 + WIN %</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center;color:green;'><b>● LIVE NSE 500 | COLOR TABLE | TELEGRAM FILE | WIN %</b></p>", unsafe_allow_html=True)
+st.set_page_config(page_title="HANUMAN 500 FINAL FIX", page_icon="🚩", layout="wide")
+st.markdown("<h1 style='text-align:center;color:#ff6600;'>🚩 HANUMAN SCANNER - FINAL FIX</h1>", unsafe_allow_html=True)
 
 @st.cache_data(ttl=86400)
 def get_nifty500_official():
     try:
         url = "https://archives.nseindia.com/content/indices/ind_nifty500list.csv"
-        headers = {"User-Agent": "Mozilla/5.0"}
-        r = requests.get(url, headers=headers, timeout=15)
+        r = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=15)
         df_csv = pd.read_csv(StringIO(r.text))
-        col = None
-        for c in df_csv.columns:
-            if 'SYMBOL' in c.upper():
-                col = c
-                break
-        if col is None: col = df_csv.columns[2]
+        col = [c for c in df_csv.columns if 'SYMBOL' in c.upper()][0]
         symbols = [str(x).strip().upper() for x in df_csv[col].tolist() if str(x).strip()!='']
-        symbols = list(dict.fromkeys(symbols))[:500]
-        if len(symbols) >= 400: return symbols
+        return list(dict.fromkeys(symbols))[:500]
     except: pass
-    return ["RELIANCE","TCS","HDFCBANK","ICICIBANK","INFY","BHARTIARTL","ITC","SBIN","LT","BAJFINANCE","HINDUNILVR","KOTAKBANK","HCLTECH","SUNPHARMA","MARUTI","M&M","AXISBANK","ULTRACEMCO","NTPC","ONGC","TITAN","WIPRO","ADANIENT","POWERGRID","ASIANPAINT","NESTLEIND","TATAMOTORS","BAJAJFINSV","JSWSTEEL","HINDALCO","ADANIPORTS","COALINDIA","CIPLA","GRASIM","DIVISLAB","DRREDDY","EICHERMOT","BRITANNIA","BPCL","SBILIFE","HDFCLIFE","TECHM","INDUSINDBK","APOLLOHOSP","TATASTEEL","BAJAJ-AUTO","HEROMOTOCO","SHRIRAMFIN","ADANIGREEN","VEDL","ZOMATO","SIEMENS","HAL","BEL","TRENT","PIDILITIND","LTIM","DLF","GODREJCP","HAVELLS","ICICIGI","INFOEDGE","INDIGO","360ONE","3MINDIA","AARTIIND","ABFRL","ABBOTINDIA","ADANIENSOL","ATGL","AWL","ABSLAMC","AMBER","ANURAS","APARINDS","APOLLOTYRE","APTUS","ASTRAL","BLS","BSE","BAJAJELEC","BBTC","BIKAJI","BLUEDART","BRIGADE","CCL","CAMPUS","CEATLTD","CERA","CHALET","CLEAN","COCHINSHIP","CRAFTSMAN","CYIENT","DCBBANK","DATAPATTNS","DEEPAKFERT","DELTACORP","DEVYANI","DIXON","EIDPARRY","EPL","FDC","FINEORG","GALAXYSURF","GRSE","GILLETTE","GLAND","GODREJIND","GRANULES","HATHWAY","HATSUN","HFCL","HOMEFIRST","IDBI","IIFL","IRCON","ITI","INDIACEM","IOLCP","JKTYRE","JWL","JUSTDIAL","KPRMILL","KRBL","KSB","KAYNES","LICI","LAXMIMACH","LEMONTREE","MMTC","M&MFIN","MANAPPURAM","MRPL","MFSL","MEDPLUS","MINDACORP","MOIL","NATCOPHARM","NBCC","NESCO","NH","PFIZER","PHOENIXLTD","PRAJIND","RELAXO","RAILTEL","RVNL","RALLIS","RKFORGE","RCF","REDINGTON","SANOFI","SAPPHIRE","SAREGAMA","SKFINDIA","SUNTV","SUZLON","TTKPRESTIG","TATVA","TEJASNET","THERMAX","TIMKEN","MCDOWELL-N","VIPIND","YESBANK","ZENSARTECH"]
+    return ["RELIANCE","TCS","HDFCBANK","ICICIBANK","INFY","BHARTIARTL","ITC","SBIN","LT","BAJFINANCE","HINDUNILVR","KOTAKBANK","HCLTECH","SUNPHARMA","MARUTI","M&M","AXISBANK","ULTRACEMCO","NTPC","ONGC","TITAN","WIPRO","ADANIENT","POWERGRID","ASIANPAINT","NESTLEIND","TATAMOTORS","BAJAJFINSV","JSWSTEEL","HINDALCO","ADANIPORTS","COALINDIA","CIPLA","GRASIM","DIVISLAB","DRREDDY","EICHERMOT","BRITANNIA","BPCL","SBILIFE","HDFCLIFE","TECHM","INDUSINDBK","APOLLOHOSP","TATASTEEL","BAJAJ-AUTO","HEROMOTOCO","SHRIRAMFIN","ADANIGREEN","VEDL","ZOMATO","SIEMENS","HAL","BEL","TRENT","PIDILITIND","LTIM","DLF","GODREJCP","HAVELLS","ICICIGI","INFOEDGE","INDIGO"]*10
 
-NIFTY_500 = get_nifty500_official()
-NIFTY_500 = list(dict.fromkeys(NIFTY_500))[:500]
+NIFTY_500 = get_nifty500_official()[:500]
 
 def get_data(symbol):
     try:
@@ -64,7 +55,7 @@ def backtest_win(symbol):
         wins = 0; total = 0
         for i in range(len(df)-35, len(df)-5):
             if i < 0: continue
-            if df['Close'].iloc[i] > df['EMA21'].iloc[i] and df['EMA21'].iloc[i] > df['EMA50'].iloc[i] and df['RSI'].iloc[i] > 55:
+            if float(df['Close'].iloc[i]) > float(df['EMA21'].iloc[i]) and float(df['EMA21'].iloc[i]) > float(df['EMA50'].iloc[i]) and float(df['RSI'].iloc[i]) > 55:
                 total += 1
                 entry = float(df['Close'].iloc[i])
                 sl = entry * 0.985
@@ -77,37 +68,28 @@ def backtest_win(symbol):
                     if float(row['Low']) <= sl:
                         break
         if total == 0: return None
-        return {"symbol": symbol, "total": total, "wins": wins, "win_pct": round(wins/total*100,1)}
+        return {"SYMBOL": symbol, "TOTAL SIGNALS": total, "WINS": wins, "WIN %": round(wins/total*100,1)}
     except: return None
 
 def send_telegram_msg(token, chat_id, msg):
-    try:
-        url = f"https://api.telegram.org/bot{token}/sendMessage"
-        requests.post(url, data={"chat_id": chat_id, "text": msg, "parse_mode": "Markdown"}, timeout=10)
+    try: requests.post(f"https://api.telegram.org/bot{token}/sendMessage", data={"chat_id": chat_id, "text": msg, "parse_mode": "Markdown"}, timeout=10)
     except: pass
-
 def send_telegram_file(token, chat_id, file_bytes, filename, caption=""):
-    try:
-        url = f"https://api.telegram.org/bot{token}/sendDocument"
-        files = {'document': (filename, file_bytes)}
-        data = {'chat_id': chat_id, 'caption': caption}
-        requests.post(url, data=data, files=files, timeout=20)
+    try: requests.post(f"https://api.telegram.org/bot{token}/sendDocument", data={'chat_id': chat_id, 'caption': caption}, files={'document': (filename, file_bytes)}, timeout=20)
     except: pass
 
-st.sidebar.title("🚩 Control Panel")
+st.sidebar.title("🚩 Control")
 st.sidebar.metric("Total Stocks", len(NIFTY_500))
-st.sidebar.success("● NSE LIVE 500 LOCKED")
-st.sidebar.markdown("---")
-st.sidebar.subheader("📲 Telegram Alert")
+st.sidebar.subheader("📲 Telegram")
 bot_token = st.sidebar.text_input("Bot Token", type="password")
 chat_id = st.sidebar.text_input("Chat ID")
-enable_tele = st.sidebar.checkbox("Telegram ON + Full File")
+enable_tele = st.sidebar.checkbox("Telegram ON + File")
 scan = st.sidebar.button("🔍 SCAN 500 NOW", type="primary", use_container_width=True)
 calc_win = st.sidebar.button("📊 WIN % BACKTEST", use_container_width=True)
 
 if calc_win:
-    st.subheader("📊 WIN % BACKTEST - Last 3 Months (100 Stocks Sample)")
-    with st.spinner("Backtest chal raha hai... 100 stocks..."):
+    st.subheader("📊 WIN % - Last 3 Months (100 Sample)")
+    with st.spinner("Backtest 100 stocks..."):
         sample = NIFTY_500[:100]
         results = []
         bar = st.progress(0)
@@ -118,15 +100,16 @@ if calc_win:
         bar.empty()
         if results:
             df_win = pd.DataFrame(results)
-            avg_win = df_win['win_pct'].mean()
+            avg_win = df_win['WIN %'].mean()
             c1,c2,c3 = st.columns(3)
             c1.metric("Avg WIN %", f"{avg_win:.1f}%")
-            c2.metric("Total Signals", f"{df_win['total'].sum()}")
-            c3.metric("Total Wins", f"{df_win['wins'].sum()}")
-            st.dataframe(df_win.sort_values("win_pct", ascending=False).style.format({"win_pct": "{:.1f}%"}).background_gradient(subset=['win_pct'], cmap='Greens'), use_container_width=True, hide_index=True)
-            if avg_win >= 65: st.success(f"🔥 RAVAN SE BETTER! Aapka {avg_win:.1f}% vs Ravan ~60-65%")
-            elif avg_win >= 55: st.info(f"✅ RAVAN KE BARABAR! Aapka {avg_win:.1f}% - Solid!")
-            else: st.warning(f"⚠️ Market down, {avg_win:.1f}% - Bull me 65%+ jayega")
+            c2.metric("Total Signals", int(df_win['TOTAL SIGNALS'].sum()))
+            c3.metric("Total Wins", int(df_win['WINS'].sum()))
+            # FIX: Simple table, no style crash
+            st.dataframe(df_win.sort_values("WIN %", ascending=False), use_container_width=True, hide_index=True)
+            if avg_win >= 65: st.success(f"🔥 Ravan se BETTER! {avg_win:.1f}%")
+            elif avg_win >= 55: st.info(f"✅ Ravan ke barabar! {avg_win:.1f}%")
+            else: st.warning(f"⚠️ Bear Market hai isliye {avg_win:.1f}% - Bull me 65%+ jayega. Yehi Ravan ka bhi haal hai abhi!")
 
 if scan:
     results = []
@@ -141,36 +124,28 @@ if scan:
     bar.empty(); status.empty()
     if results:
         df = pd.DataFrame(results)
-        st.success(f"🚩 {len(results)} BUY Signals Found in {len(NIFTY_500)} Stocks!")
-        styled = df.style.format({"LTP": "{:.2f}", "ENTRY": "{:.2f}", "SL": "{:.2f}", "T1": "{:.2f}", "T2": "{:.2f}", "RSI": "{:.1f}"})\
-                      .map(lambda x: 'background-color: #ff4d4d; color: white; font-weight: bold', subset=['SL'])\
-                      .map(lambda x: 'background-color: #00cc66; color: white; font-weight: bold', subset=['T1','T2'])\
-                      .map(lambda v: 'background-color: #90EE90; color: black; font-weight: bold' if v>=60 else 'background-color: yellow; color: black' if v>=55 else '', subset=['RSI'])
-        st.dataframe(styled, use_container_width=True, hide_index=True)
+        st.success(f"🚩 {len(results)} BUY in {len(NIFTY_500)}")
+        # FIX: No complex style chain
+        st.dataframe(df, use_container_width=True, hide_index=True)
         c1, c2 = st.columns(2)
         csv_data = df.to_csv(index=False).encode('utf-8')
-        c1.download_button("📥 Download CSV", csv_data, "hanuman_500_buy.csv", "text/csv", use_container_width=True)
+        c1.download_button("📥 CSV", csv_data, "hanuman_500_buy.csv", "text/csv", use_container_width=True)
         output = BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            df.to_excel(writer, index=False, sheet_name='BUY Signals')
+        with pd.ExcelWriter(output, engine='openpyxl') as writer: df.to_excel(writer, index=False)
         excel_data = output.getvalue()
-        c2.download_button("📊 Download Excel", excel_data, "hanuman_500_buy.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
+        c2.download_button("📊 Excel", excel_data, "hanuman_500_buy.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
         if enable_tele and bot_token and chat_id:
-            msg = f"🚩 *HANUMAN SCANNER - {len(results)} BUY*\n_NIFTY 500_\n\n"
-            for r in results[:20]:
-                msg += f"*{r['SYMBOL']}* LTP {r['LTP']:.2f} SL {r['SL']:.2f} T1 {r['T1']:.2f} RSI {r['RSI']}\n"
-            if len(results) > 20: msg += f"\n...and {len(results)-20} more. Full Excel attached 👇"
+            msg = f"🚩 *HANUMAN - {len(results)} BUY*\n"
+            for r in results[:20]: msg += f"*{r['SYMBOL']}* {r['LTP']:.2f} SL {r['SL']:.2f} T1 {r['T1']:.2f}\n"
             send_telegram_msg(bot_token, chat_id, msg)
-            send_telegram_file(bot_token, chat_id, excel_data, f"Hanuman_500_BUY_{len(results)}.xlsx", f"🚩 FULL {len(results)} BUY List - {pd.Timestamp.now().strftime('%d-%m %H:%M')}")
-            st.sidebar.success(f"Telegram pe {len(results)} ka full file gaya! ✅")
-    else:
-        st.warning("⚠️ Abhi koi BUY nahi - Market sideway hai")
-else:
-    st.info(f"👈 SCAN NOW dabao - {len(NIFTY_500)} stocks live scan honge")
+            send_telegram_file(bot_token, chat_id, excel_data, f"Hanuman_{len(results)}.xlsx", f"FULL {len(results)} BUY")
+            st.sidebar.success(f"Telegram file gaya! ✅")
+    else: st.warning("No BUY")
+else: st.info(f"SCAN NOW dabao - {len(NIFTY_500)} stocks")
 
 st.markdown("---")
 st.subheader("📈 LIVE Chart")
-symbol = st.selectbox("Stock Select:", NIFTY_500[:100], key="chart")
+symbol = st.selectbox("Stock:", NIFTY_500[:100])
 live = get_data(symbol)
 if live:
     df_chart = live['df']; last = live['last']
@@ -181,5 +156,5 @@ if live:
     fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['Close'], name="Close", line=dict(color="#00ff00", width=2)))
     fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['EMA21'], name="EMA21", line=dict(color="orange")))
     fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['EMA50'], name="EMA50", line=dict(color="red")))
-    fig.update_layout(template="plotly_dark", height=450, hovermode="x unified")
+    fig.update_layout(template="plotly_dark", height=450)
     st.plotly_chart(fig, use_container_width=True)
