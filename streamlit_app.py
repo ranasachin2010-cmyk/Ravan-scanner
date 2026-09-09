@@ -4,19 +4,21 @@ import pandas as pd
 import plotly.graph_objects as go
 from concurrent.futures import ThreadPoolExecutor
 
-st.set_page_config(page_title="HANUMAN SCANNER LIVE", page_icon="🚩", layout="wide")
+st.set_page_config(page_title="HANUMAN SCANNER 500 LIVE", page_icon="🚩", layout="wide")
 
-# === YE 2 LINE SAB TOOLBAR HATA DEGI ===
+# SAB ICON HATANE KA JADU
 st.markdown("""
 <style>
 [data-testid="stElementToolbar"] {display: none !important;}
 .stActionButton {display: none !important;}
+header {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1 style='text-align:center;color:#ff6600;'>🚩 HANUMAN SCANNER - LIVE NSE</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center;color:green;'><b>● LIVE NSE DATA | 100% Ravan Clone</b></p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center;color:#ff6600;'>🚩 HANUMAN SCANNER - LIVE NSE 500</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;color:green;'><b>● LIVE NSE DATA | NIFTY 500</b></p>", unsafe_allow_html=True)
 
+# NIFTY 500 - PURA LIST
 NIFTY_500 = [
 "RELIANCE","TCS","HDFCBANK","ICICIBANK","INFY","BHARTIARTL","ITC","SBIN","LT","BAJFINANCE",
 "HINDUNILVR","KOTAKBANK","HCLTECH","SUNPHARMA","MARUTI","M&M","AXISBANK","ULTRACEMCO","NTPC","ONGC",
@@ -41,9 +43,45 @@ NIFTY_500 = [
 "ASTERDM","ATUL","BDL","BLUESTARCO","CENTRALBK","COFORGE","DELHIVERY","EIHOTEL","ELGIEQUIP","GICRE",
 "GLAXO","GSPL","HBLPOWER","IDBI","IIFL","IRB","JBCHEPHARM","JKCEMENT","KARURVYSYA","KIMS",
 "MASTEK","MAZDOCK","MOTILALOFS","NYKAA","OLECTRA","PATANJALI","PNBHOUSING","RADICO","RITES","SOBHA",
-"SOLARINDS","STARHEALTH","SUVENPHAR","TANLA","TEAMLEASE","UCOBANK","UNIONBANK","VAIBHAVGBL","WELSPUNLIV","ZYDUSWELL"
+"SOLARINDS","STARHEALTH","SUVENPHAR","TANLA","TEAMLEASE","UCOBANK","UNIONBANK","VAIBHAVGBL","WELSPUNLIV","ZYDUSWELL",
+"AARTIPHARM","ABSLAMC","AEGISCHEM","AKZOINDIA","ALKYLAMINE","AMBER","ANURAS","APLLTD","ASAHIINDIA","ASTRAL",
+"AVANTIFEED","BAJAJELEC","BALMLAWRIE","BAYERCROP","BECTORFOOD","BFUTILITIE","BHARATRAS","BIRLACABLE","BLUEDART","BORORENEW",
+"BRIGADE","BSE","CCL","CENTURYPLY","CHALET","CHEMPLASTS","CIGNITEC","CYIENT","DCBBANK","DCMSHRIRAM",
+"DEEPAKFERT","DHANUKA","DODLA","DYNAMATECH","EIDPARRY","ELECON","EQUITASBNK","ERIS","ESABINDIA","ETHOS",
+"FCL","FIEMIND","FINCABLES","FINEORG","FIVESTAR","FLUOROCHEM","GAEL","GARFIBRES","GESHIP","GHCL",
+"GLS","GMMPFAUDLR","GNA","GOCLCORP","GOCOLORS","GODREJAGRO","GPIL","GPPL","GRANULES","GRAPHITE",
+"GRAVITA","HARSHA","HCC","HCG","HEIDELBERG","HFCL","HGINFRA","HIKAL","HINDOILEXP","HOMEFIRST",
+"HSCL","ICRA","IOLCP","IRCON","ITDC","JAYBARMARU","JBMA","JCHAC","JINDALPOLY","JKLAKSHMI",
+"JPPOWER","JSWHL","JTEKTINDIA","JTLIND","KABRAEXTRU","KALPATPOWR","KANSAINER","KESORAMIND","KIRLOSENG","KNRCON",
+"KTKBANK","LAKSHMIMACH","LEMONTREE","LGBBROSLTD","LINDEINDIA","LLOYDSME","LUMAXTECH","MAHABANK","MAHLOG","MANINFRA",
+"MANGCHEFER","MARKSANS","MAXHEALTH","MAYURUNIQ","MMTC","MOIL","MOLDTECH","MONTECARLO","MOREPENLAB","MTARTECH",
+"NATCOPHARM","NDL","NEOGEN","NESCO","NFL","NILKAMAL","NIPPOBATRY","NOCIL","NRBBEARING","NUCLEUS",
+"OBEROIRLTY","OMAXE","ONMOBILE","ONWARDTEC","ORIENTCEM","ORIENTELEC","ORIENTHOT","PACL","PALREDTEC","PANAMAPET",
+"PARACABLES","PARKHOTELS","PCJEWELLER","PDSL","PENIND","PFOCUS","PGEL","PGHL","PHOENIXLTD","PILANIINVS",
+"PITTIENG","PNBGILTS","PNCINFRA","POLYPLEX","PONNIERODE","POWERMECH","PPAP","PRAKASH","PRECOT","PRECWIRE",
+"PREMEXPLN","PRICOLLTD","PRINCEPIPE","PRSMJOHNSN","PSB","PSPPROJECT","PTC","PTL","PUNJABCHEM","QUESS",
+"QUICKHEAL","RADAAN","RAILTEL","RAIN","RAJESHEXPO","RALLIS","RAMASTEEL","RAMCOIND","RAMCOSYS","RATEGAIN",
+"RBLBANK","REDINGTON","RELAXO","RELIGARE","REPCOHOME","RESPONIND","RGL","RHIM","RICOAUTO","RKFORGE",
+"ROLEXRINGS","ROSSARI","ROTO","ROUTE","RPGLIFE","RPOWER","RSYSTEMS","RTNINDIA","SADBHAV","SAFARI",
+"SALASAR","SANDHAR","SANGHIIND","SANGHVIMOV","SANOFI","SAPPHIRE","SAREGAMA","SBCL","SCHAEFFLER","SCHAND",
+"SCHNEIDER","SEAMECLTD","SELAN","SEPC","SEQUENT","SFL","SHALBY","SHANKARA","SHANTIGEAR","SHAREINDIA",
+"SHEMAROO","SHILPAMED","SHK","SHOPERSTOP","SHYAMCENT","SHYAMMETL","SIEMENS","SIRCA","SKFINDIA","SKIPPER",
+"SMLISUZU","SMLT","SMSLIFE","SMSPHARMA","SNOWMAN","SOLARA","SOMANYCERA","SONATSOFTW","SOTL","SOUTHBANK",
+"SPAL","SPANDANA","SPARC","SPECIALITY","SPENCERS","SPIC","SPLPET","SPMLINFRA","SPORTKING","SRF",
+"STARCEMENT","STLTECH","STOVEKRAFT","SUBEXLTD","SUBROS","SUDARSCHEM","SUMICHEM","SUNCLAYLTD","SUNDARMFIN","SUNTECK",
+"SUPERHOUSE","SUPRAJIT","SURANAT&P","SURYAROSNI","SUTLEJTEX","SYMPHONY","TANLA","TARSONS","TATACOFFEE","TATAMETALI",
+"TCIEXP","TCNSBRANDS","TCPLPACK","TECHM","TEJASNET","TEXRAIL","THANGAMAYL","THERMAX","THOMASCOOK","TI",
+"TIMETECHNO","TIMKEN","TIPSINDLTD","TMB","TNPETRO","TNPL","TORNTPOWER","TPHQ","TRANSPEK","TRENT",
+"TTKPRESTIG","TTML","TV18BRDCST","TVSMOTOR","TVSSCS","TVTODAY","UCAL","UFLEX","UJJIVAN","ULTRACEMCO",
+"UNICHEMLAB","UNITECH","UNITEDTEA","UNOMINDA","USHAMART","UTIAMC","VADILALIND","VAKRANGEE","VENKEYS","VHL",
+"VIDHIING","VIJAYA","VINATIORGA","VINDHYATEL","VIPIND","VIPULLTD","VISAKAIND","VLSFINANCE","VMART","VOLTAMP",
+"VOLTAS","VRLLOG","VSSL","VSTIND","VSTTILLERS","VTL","WABAG","WALCHANNAG","WANBURY","WEBSOLENERG",
+"WELENT","WESTLIFE","WHEELS","WHIRLPOOL","WINDMACHIN","WOCKPHARMA","XCHANGING","XLENERGY","XPROINDIA","YESBANK",
+"ZANDUREALT","ZEELEARN","ZEEL","ZENSARTECH","ZENTEC","ZODIACLOTH","ZOTA","ZUARI","ZUARIIND","ZYDUSLIFE"
 ]
+
 NIFTY_500 = list(dict.fromkeys(NIFTY_500))
+NIFTY_500 = NIFTY_500[:500]
 
 def get_data(symbol):
     try:
@@ -68,8 +106,8 @@ def get_data(symbol):
 
 st.sidebar.title("🚩 Hanuman Scanner")
 st.sidebar.metric("Total Stocks", len(NIFTY_500))
-st.sidebar.success("● NSE LIVE")
-scan = st.sidebar.button("🔍 LIVE SCAN NOW", type="primary", use_container_width=True)
+st.sidebar.success("● NSE LIVE 500")
+scan = st.sidebar.button("🔍 LIVE SCAN 500 NOW", type="primary", use_container_width=True)
 
 if scan:
     results = []
@@ -77,7 +115,7 @@ if scan:
     status = st.empty()
     def scan_one(sym):
         return get_data(sym)
-    with ThreadPoolExecutor(max_workers=20) as ex:
+    with ThreadPoolExecutor(max_workers=30) as ex:
         for i, res in enumerate(ex.map(scan_one, NIFTY_500)):
             if res and res['is_buy']:
                 last = res['last']
@@ -98,16 +136,16 @@ if scan:
     status.empty()
     if results:
         st.balloons()
-        st.success(f"🚩 {len(results)} BUY Signals Found! - LIVE NSE")
+        st.success(f"🚩 {len(results)} BUY Signals Found in {len(NIFTY_500)} Stocks!")
         st.dataframe(pd.DataFrame(results), use_container_width=True, hide_index=True)
     else:
         st.warning("⚠️ Abhi koi BUY nahi")
 else:
-    st.info(f"👈 SCAN NOW dabao - {len(NIFTY_500)} stocks LIVE scan hoga!")
+    st.info(f"👈 SCAN NOW dabao - {len(NIFTY_500)} stocks ka LIVE scan hoga! 2-3 min lagega")
 
 st.markdown("---")
 st.subheader("📈 LIVE Chart")
-symbol = st.selectbox("Stock Select:", NIFTY_500, key="chart_select")
+symbol = st.selectbox("Stock Select:", NIFTY_500[:100], key="chart_select")
 live = get_data(symbol)
 if live:
     df_chart = live['df']
@@ -123,3 +161,5 @@ if live:
     fig.add_trace(go.Scatter(x=df_chart.index, y=df_chart['EMA50'], name="EMA50", line=dict(color="red")))
     fig.update_layout(template="plotly_dark", height=450, hovermode="x unified")
     st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False, 'displaylogo': False})
+
+st.markdown("<p style='text-align:center;color:gray;'>🚩 HANUMAN SCANNER 500 | Jai Shri Ram</p>", unsafe_allow_html=True)
